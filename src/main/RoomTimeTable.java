@@ -1,4 +1,4 @@
-package Main;
+package main;
 public class RoomTimeTable {
 
   public static final int NUM_DAYS = 5;

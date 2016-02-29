@@ -1,4 +1,4 @@
-package Main;
+package main;
 public class Event {
 
 	public static enum Type { LECTURE, LESSON, LAB };

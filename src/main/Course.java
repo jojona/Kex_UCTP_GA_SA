@@ -1,6 +1,4 @@
-package Main;
-import java.util.List;
-import java.util.ArrayList;
+package main;
 
 /*
  * Course containing ID and set of events

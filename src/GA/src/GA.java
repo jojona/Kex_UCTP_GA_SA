@@ -1,32 +1,21 @@
 package GA.src;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Random;
 
-import Main.Course;
-import Main.Event;
-import Main.KTH;
-import Main.Lecturer;
-import Main.Room;
-import Main.RoomTimeTable;
-import Main.StudentGroup;
-import Main.TimeTable;
+import main.Metaheuristic;
+import main.RoomTimeTable;
+import main.TimeTable;
 
 /**
  * Performs the Genetic Algorithm(GA) on the KTH data set.
  */
-public class GA {
+public class GA extends Metaheuristic{
 
   public enum SELECTION_TYPE {
     NORMAL,
@@ -67,10 +56,9 @@ public class GA {
   private MUTATION_TYPE mutationType = MUTATION_TYPE.NORMAL;
 
   private Population population;
-  private KTH kth;
-
+  
   public GA() {
-    kth = new KTH();
+	  super();
   }
   
   /*
@@ -88,7 +76,7 @@ public class GA {
     ListIterator<TimeTable> it = population.listIterator();
     while(it.hasNext()) {
       TimeTable tt = it.next();
-      fitness(tt);
+      constraints.fitness(tt);
     }
 
     population.sortIndividuals();
@@ -109,78 +97,6 @@ public class GA {
     return population.getTopIndividual();
   }
 
-
-  //////////////////////////
-  // SETUP
-  //////////////////////////
-
-  public void loadData(String dataFileUrl) {
-    kth.clear(); // reset all previous data before loading
-
-    try {
-      File file = new File(dataFileUrl);
-      BufferedReader in = new BufferedReader(new FileReader(file));
-      String line = null;
-      // input data sections are read in the following order separated by #
-      // #rooms <name> <capacity> <type>
-      // #courses <id> <name> <numLectures> <numClasses> <numLabs>
-      // #lecturers <name> <course>+
-      // #studentgroups <name> <numStudents> <course>+
-      String readingSection = null;
-      String roomName = null;
-      String courseName = null;
-      String lecturerName = null;
-      String studentGroupName = null;
-      HashMap<String, Integer> courseNameToId = new HashMap<String, Integer>();
-      while((line = in.readLine()) != null) {
-        String[] data = line.split(" ");
-        if(data[0].charAt(0) == '#') {
-          readingSection = data[1];
-          data = in.readLine().split(" ");
-        }
-        if(readingSection.equals("ROOMS")) {
-          roomName = data[0];
-          int cap = Integer.parseInt(data[1]);
-          Event.Type type = Event.generateType(Integer.parseInt(data[2]));
-          Room room = new Room(roomName, cap, type);
-          kth.addRoom(room);
-        } else if(readingSection.equals("COURSES")) {
-          courseName = data[0];
-          int numLectures = Integer.parseInt(data[1]);
-          int numLessons = Integer.parseInt(data[2]);
-          int numLabs = Integer.parseInt(data[3]);
-          Course course = new Course(courseName, numLectures, numLessons, numLabs);
-          courseNameToId.put(courseName, course.getId());
-          kth.addCourse(course);
-        } else if(readingSection.equals("LECTURERS")) {
-          lecturerName = data[0];
-          Lecturer lecturer = new Lecturer(lecturerName);
-          for(int i = 1; i < data.length; i++) {
-            // register all courses that this lecturer may teach
-            courseName = data[i];
-            lecturer.addCourse(kth.getCourses().get(courseNameToId.get(courseName)));
-          }
-          kth.addLecturer(lecturer);
-        } else if(readingSection.equals("STUDENTGROUPS")) {
-          studentGroupName = data[0];
-          int size = Integer.parseInt(data[1]);
-          StudentGroup studentGroup = new StudentGroup(studentGroupName, size);
-          for(int i = 2; i < data.length; i++) {
-            courseName = data[i];
-            studentGroup.addCourse(kth.getCourses().get(courseNameToId.get(courseName)));
-          }
-          kth.addStudentGroup(studentGroup);
-        }
-      }
-      kth.createEvents(); // create all events
-      in.close();
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
   //////////////////////////
   // GENETIC ALGORITHMS
   //////////////////////////
@@ -197,7 +113,7 @@ public class GA {
 
   /////////////////////////////
   
-  // uses another implementation of roulette selection of parents
+  // Uses another implementation of roulette selection of parents
   private Population breed(Population population, int N) {
     Population children = new Population();
 
@@ -261,7 +177,7 @@ public class GA {
       TimeTable child = crossoverWithPoint(t1, t2);
       mutate(child);
       repairTimeTable(child);
-      fitness(child);
+      constraints.fitness(child);
 
       children.addIndividual(child);
     }
@@ -411,7 +327,7 @@ public class GA {
     }
   }
 
-  // wrapper class only used in repair function
+  // Wrapper class only used in repair function
   private class RoomDayTime {
     int room;
     int day;
@@ -450,220 +366,6 @@ public class GA {
         }
       }
     }
-  }
-
-  //////////////////////////
-  // FITNESS
-  //////////////////////////
-
-  private void fitness(TimeTable tt) {
-    // set the fitness to this time table
-    
-    int studentGroupDoubleBookings = studentGroupDoubleBookings(tt);
-    int lecturerDoubleBookings = lecturerDoubleBookings(tt);
-    int roomCapacityBreaches = roomCapacityBreaches(tt);
-    int roomTypeBreaches = roomTypeBreaches(tt);
-
-    int numBreaches = studentGroupDoubleBookings * 2+
-                      lecturerDoubleBookings +
-                      roomCapacityBreaches * 4 +
-                      roomTypeBreaches * 4;
-
-    int fitness = -1 * numBreaches;
-    tt.setFitness(fitness);
-  }
-
-  //////////////////////////
-  // CONSTRAINTS
-  //////////////////////////
-
-  ///////////////////
-  // Hard constraints, each function returns the number of constraint breaches
-  ///////////////////
-
-  // NOTE: Two of the hard constraints are solved by the chosen datastructure
-  // Invalid timeslots may not be used
-  // A room can not be double booked at a certain timeslot
-
-  private int studentGroupDoubleBookings(TimeTable tt) {
-    int numBreaches = 0;
-
-    RoomTimeTable[] rtts = tt.getRoomTimeTables();
-
-    for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS;
-                                                        timeslot++) {
-      for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
-        for (StudentGroup sg : kth.getStudentGroups().values()) {
-          
-          HashMap<Integer, Integer> eventGroupCounts = 
-          new HashMap<Integer, Integer>();
-
-          for (RoomTimeTable rtt : rtts) {
-            int eventID = rtt.getEvent(day, timeslot);
-
-            // only look at booked timeslots
-            if (eventID != 0) {
-              Event event = kth.getEvent(eventID);
-              int sgID = event.getStudentGroup().getId();
-              
-              // if this bookings is for the current studentgroup
-              if (sgID == sg.getId()) {
-                int eventGroupID = event.getEventGroupId();
-                
-                // increment the count for this event group id
-                if (!eventGroupCounts.containsKey(eventGroupID)) {
-                  eventGroupCounts.put(eventGroupID, 1);
-                
-                } else {
-                  int oldCount = eventGroupCounts.get(eventGroupID);
-                  eventGroupCounts.put(eventGroupID, oldCount + 1);
-                }
-              }
-            }
-          }
-          
-          // find the biggest event group
-          int biggestGroup; 
-          int biggestGroupSize = 0;
-          int sumGroupSize = 0;
-          for (Map.Entry<Integer, Integer> entry : 
-                                  eventGroupCounts.entrySet()) {
-            
-            sumGroupSize += entry.getValue();
-
-            if (entry.getValue() > biggestGroupSize) {
-              biggestGroup = entry.getKey();
-              biggestGroupSize = entry.getValue();
-            }
-          }
-
-          numBreaches += sumGroupSize - biggestGroupSize;
-        }
-      }
-    }
-
-    return numBreaches;
-  }
-  
-  private int max(int a, int b, int c) {
-    int max = a;
-
-    if (b > max) {
-      max = b;
-    }
-
-    if (c > max) {
-      max = c;
-    }
-
-    return max;
-  }
-
-  // num times a lecturer is double booked
-  // NOTE: lecturers are only booked to lectures
-  // for the labs and classes, TAs are used and they are assumed to always
-  // be available
-  private int lecturerDoubleBookings(TimeTable tt) {
-    int numBreaches = 0;
-
-    RoomTimeTable[] rtts = tt.getRoomTimeTables();
-
-    for (Lecturer lecturer : kth.getLecturers().values()) {
-
-      // for each time
-      for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS;
-                                                           timeslot++) {
-
-        for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
-          int numBookings = 0;
-
-          for (RoomTimeTable rtt : rtts) {
-            int eventID = rtt.getEvent(day, timeslot);
-
-            // 0 is unbooked
-            if (eventID != 0) {
-              Event event = kth.getEvent(eventID);
-              // only check lectures since lecturers are only
-              // attached to lecture events
-              if (event.getType() == Event.Type.LECTURE) {
-                if (event.getLecturer().getId() == lecturer.getId()) {
-                  numBookings++;
-                }
-              }
-            }
-          }
-
-          // only one booking per time is allowed
-          if (numBookings > 1) {
-
-            // add all extra bookings to the number of constraint breaches
-            numBreaches += numBookings - 1;
-          }
-        }
-      }
-    }
-
-    return numBreaches;
-  }
-
-  // num times a room is too small for the event booked
-  private int roomCapacityBreaches(TimeTable tt) {
-    int numBreaches = 0;
-
-    RoomTimeTable[] rtts = tt.getRoomTimeTables();
-
-    for (RoomTimeTable rtt : rtts) {
-      int roomSize = rtt.getRoom().getCapacity();
-
-      // for each time
-      for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS;
-                                                          timeslot++) {
-
-        for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
-          int eventID = rtt.getEvent(day, timeslot);
-
-          // only look at booked timeslots
-          if (eventID != 0) {
-            int eventSize = kth.getEvent(eventID).getSize();
-            if (roomSize < eventSize) {
-              numBreaches++;
-            }
-          }
-        }
-      }
-    }
-
-    return numBreaches;
-  }
-
-  // num times an event is booked to the wrong room type
-  private int roomTypeBreaches(TimeTable tt) {
-    int numBreaches = 0;
-
-    RoomTimeTable[] rtts = tt.getRoomTimeTables();
-
-    for (RoomTimeTable rtt : rtts) {
-      Event.Type roomType = rtt.getRoom().getType();
-
-      // for each time
-      for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS;
-                                                          timeslot++) {
-
-        for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
-          int eventID = rtt.getEvent(day, timeslot);
-
-          // only look at booked timeslots
-          if (eventID != 0) {
-            Event.Type type = kth.getEvent(eventID).getType();
-            if (roomType != type) {
-              numBreaches++;
-            }
-          }
-        }
-      }
-    }
-
-    return numBreaches;
   }
 
   public void setMutationProbability(int p) {

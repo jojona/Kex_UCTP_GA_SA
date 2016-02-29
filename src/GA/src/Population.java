@@ -7,11 +7,11 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 
-import Main.Event;
-import Main.KTH;
-import Main.Room;
-import Main.RoomTimeTable;
-import Main.TimeTable;
+import main.Event;
+import main.KTH;
+import main.Room;
+import main.RoomTimeTable;
+import main.TimeTable;
 
 // keeps all the TimeTables for a generation
 public class Population {
@@ -39,9 +39,14 @@ public class Population {
   public void createRandomIndividuals(int numIndividuals, KTH kth) {
     Map<Integer, Room> rooms = kth.getRooms();
     int numRooms = kth.getRooms().size();
-
     for(int i = 0; i < numIndividuals; i++) {
-      // register all available timeslots
+      TimeTable tt = generateRandomInvidual(kth, rooms, numRooms);
+      individuals.add(tt);
+    }
+  }
+
+  public TimeTable generateRandomInvidual(KTH kth, Map<Integer, Room> rooms, int numRooms)  {
+	// register all available timeslots
       ArrayList<TimeSlot> availableTimeSlots = new ArrayList<TimeSlot>();
       for(int roomId : rooms.keySet()) {
         for(int d = 0; d < RoomTimeTable.NUM_DAYS; d++) {
@@ -76,11 +81,10 @@ public class Population {
         System.out.println("Day: " + availableTimeSlot.day + " Timeslot: " + availableTimeSlot.timeSlot + " Event ID: " + e.getId());
         */
       }
-      individuals.add(tt);
       availableTimeSlots.clear();
-    }
+	  return tt;
   }
-
+  
   // assumes sorted
   public TimeTable getTopIndividual() {
     return individuals.get(0);

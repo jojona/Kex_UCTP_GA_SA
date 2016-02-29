@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import Main.TimeTable;
+import main.TimeTable;
 
 public class GUI extends JFrame implements ActionListener {
 

@@ -1,4 +1,4 @@
-package Main;
+package main;
 public class Room {
 	private static int nextId = 0;
 	private String name;

@@ -1,5 +1,4 @@
-package Main;
-import java.util.*;
+package main;
 
 public class TimeTable implements Comparable<TimeTable> {
   private int fitness;

@@ -1,6 +1,7 @@
-package Main;
+package main;
 
 import GA.src.GUI;
+import SA.SA;
 
 public class Main {
 	
@@ -11,13 +12,17 @@ public class Main {
 	}
 	
 	public void SA() {
-		//SA sa = new SA();
+		SA sa = new SA();
+		
+		sa.run("src/GA/input/kth");
 	}
 	
 	public void GA() {
 		GUI gui = new GUI();
 	    gui.setVisible(true);
 	}
+	
+	  
 	
 }
 
