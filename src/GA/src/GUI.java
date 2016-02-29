@@ -20,7 +20,7 @@ public class GUI extends JFrame implements ActionListener {
   // GUI properties
   private final String APPLICATION_TITLE = "KTH Scheduler";
   private final int WIDTH = 400;
-  private final int HEIGHT = 400;
+  private final int HEIGHT = 460;
 
   // GUI components
   JPanel mainPanel;
