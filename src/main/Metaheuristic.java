@@ -13,16 +13,15 @@ public class Metaheuristic {
 	  protected Constraints constraints;
 	  
 	  public Metaheuristic() {
-		  kth = new KTH();
-		  constraints = new Constraints(kth);
+		 
 	  }
 
 	//////////////////////////
 	// SETUP
 	//////////////////////////
 
-	public KTH loadData(String dataFileUrl) {
-		KTH kth = new KTH();
+	public void loadData(String dataFileUrl) {
+		kth = new KTH();
 		kth.clear(); // reset all previous data before loading
 
 		try {
@@ -88,7 +87,7 @@ public class Metaheuristic {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return kth;
+		constraints = new Constraints(kth);
 	}
 
 }

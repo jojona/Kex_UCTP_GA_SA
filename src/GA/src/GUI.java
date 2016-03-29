@@ -100,7 +100,7 @@ public class GUI extends JFrame implements ActionListener {
   
   private void setup() {    
     // setup the genetic algorithm
-    ga.loadData(inputDataUrlTextField.getText());
+	ga.loadData(inputDataUrlTextField.getText());
     ga.setMutationProbability(Integer.parseInt(mutationProbabilityTextField.getText()));
     ga.setCrossoverProbability(Integer.parseInt(crossoverProbabilityTextField.getText()));
     ga.setPopulationSize(Integer.parseInt(populationSizeTextField.getText()));

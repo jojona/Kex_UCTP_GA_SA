@@ -15,6 +15,17 @@ public class RoomTimeTable {
     this.room = room;
     timeSlots = new int[NUM_TIMESLOTS][NUM_DAYS];
   }
+  
+  public RoomTimeTable(RoomTimeTable rtt) {
+	  room = rtt.room;
+	  
+	  timeSlots = new int[NUM_TIMESLOTS][NUM_DAYS];
+	  for(int x = 0; x < NUM_TIMESLOTS; x++) {
+		  for(int y = 0; y < NUM_DAYS; y++) {
+			  timeSlots[x][y] = rtt.timeSlots[x][y];
+		  }
+	  }
+  }
 
   public boolean hasEvent(int day, int timeslot) {
     if(timeSlots[timeslot][day] == 0) {

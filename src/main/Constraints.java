@@ -8,7 +8,6 @@ public class Constraints {
 	KTH kth;
 	
 	public Constraints(KTH kth) {
-		
 		this.kth = kth;
 	}
 	

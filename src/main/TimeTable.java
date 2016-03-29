@@ -9,7 +9,15 @@ public class TimeTable implements Comparable<TimeTable> {
   public TimeTable(int numRooms) {
     roomTimeTables = new RoomTimeTable[numRooms];
   }
-
+  
+  public TimeTable(TimeTable tt) {
+	  roomTimeTables = new RoomTimeTable[tt.roomTimeTables.length];
+	  for (int i = 0; i < tt.roomTimeTables.length; i++) {
+		roomTimeTables[i] = new RoomTimeTable(tt.roomTimeTables[i]);
+	  }
+	  
+  }
+  
   public int getFitness() {
     return fitness;
   }
