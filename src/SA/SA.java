@@ -22,7 +22,7 @@ public class SA extends Metaheuristic {
 	private int iterations;
 	private double temperature;
 	private int GLOBAL_ITERATIONS_MAX = 10000;
-	private int globalIterations = 0;
+	public int globalIterations = 0;
 	
 	private TimeTable solution;
 	
@@ -30,17 +30,32 @@ public class SA extends Metaheuristic {
 		super();
 		random = new Random(1565161515l);
 	
-		// TODO select cooling schedule
 	}
 	
-	public void run(String filename) {
+	public void setup(TimeTable tt, KTH kth, Constraints constraints) {
+		this.kth = kth;
+		this.constraints = constraints;
+		this.solution = tt;
 		
-		loadData(filename);
+		temperature = initialTemperature();
+		iterations = initialIterations();
+		constraints.fitness(solution);
+		
+	}
+	
+	public void setup(String filename) {
+		 loadData(filename);
+		 constraints = new Constraints(kth);
+		  
 		solution = initialSolution();
 		temperature = initialTemperature();
 		iterations = initialIterations();
-		
 		constraints.fitness(solution);
+
+		// TODO select cooling schedule
+	}
+	
+	public void run() {
 		
 		boolean stop = false;
 		while(!stop) {
@@ -67,8 +82,6 @@ public class SA extends Metaheuristic {
 			}
 			globalIterations++;
 		}
-		
-		kth.printTimeTable(solution);
 	}
 	
 	/**
@@ -234,6 +247,14 @@ public class SA extends Metaheuristic {
 	private void nextCoolingstep() {
 		temperature = INITIAL_TEMPERATURE * Math.exp(CONSTANT_MY * globalIterations);
 		//iterations = iterations;
+	}
+	
+	public TimeTable getResult() {
+		return solution;
+	}
+	
+	public void printConf() {
+		System.out.println("Very nice conf you got there");
 	}
 	
 

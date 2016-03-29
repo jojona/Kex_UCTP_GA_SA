@@ -8,13 +8,12 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class Metaheuristic {
+
+	protected KTH kth;
+	protected Constraints constraints;
 	
-	  protected KTH kth;
-	  protected Constraints constraints;
-	  
-	  public Metaheuristic() {
-		 
-	  }
+	public Metaheuristic() {
+	}
 
 	//////////////////////////
 	// SETUP
@@ -87,7 +86,6 @@ public class Metaheuristic {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		constraints = new Constraints(kth);
 	}
 
 }
