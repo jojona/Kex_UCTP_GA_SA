@@ -9,15 +9,15 @@ public class Main {
 		
 		Main main = new Main();
 		
-		//main.SA();
+		main.SA();
 		
-		main.GA();
+		//main.GA();
 	}
 	
 	public void SA() {
 		SA sa = new SA();
 		
-		sa.run("src/GA/input/midkth");
+		sa.run("src/GA/input/kth_L");
 	}
 	
 	public void GA() {

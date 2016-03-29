@@ -25,8 +25,6 @@ public class SA extends Metaheuristic {
 	private int globalIterations = 0;
 	
 	private TimeTable solution;
-	private Constraints constraints;
-	private KTH kth;
 	
 	public SA() {
 		super();
@@ -53,12 +51,15 @@ public class SA extends Metaheuristic {
 				int delta = currentSolution.getFitness() - solution.getFitness();
 				
 				// TODO see interval of delta ANSWER 0-30
-				System.out.println(delta + " " + temperature + " " + currentSolution.getFitness() + " " + solution.getFitness());
+				//System.out.println(delta + " " + temperature + " " + currentSolution.getFitness() + " " + solution.getFitness());
 				
 				if (delta > 0 || (Math.exp(delta/temperature) > random.nextFloat())) {
 					solution = currentSolution;
 				}
 			}
+			
+			System.out.println("#GlobalIteration: " + globalIterations + " CURRENT FITNESS: " + solution.getFitness());
+			
 			nextCoolingstep();	
 			
 			if (globalIterations == GLOBAL_ITERATIONS_MAX || solution.getFitness() == 0) {
@@ -67,7 +68,7 @@ public class SA extends Metaheuristic {
 			globalIterations++;
 		}
 		
-		System.out.println("End");
+		kth.printTimeTable(solution);
 	}
 	
 	/**
@@ -105,7 +106,6 @@ public class SA extends Metaheuristic {
 		// Create a copy
 		TimeTable copy= new TimeTable(tt);
 		RoomTimeTable[] rttList = copy.getRoomTimeTables();
-		
 		
 		//swap(rttList);
 		//simpleSearch(rttList);
@@ -186,7 +186,7 @@ public class SA extends Metaheuristic {
 		int day2 = random.nextInt(RoomTimeTable.NUM_DAYS);
 		int room2 = random.nextInt(rttList.length);
 		int event2 = rttList[room2].getEvent(day2, timeslot2);
-		while(event2 == 0) {
+		while(event2 == 0 || event1 == event2) {
 			timeslot2 = random.nextInt(RoomTimeTable.NUM_TIMESLOTS);
 			day2 = random.nextInt(RoomTimeTable.NUM_DAYS);
 			room2 = random.nextInt(rttList.length);
@@ -207,19 +207,24 @@ public class SA extends Metaheuristic {
 		int day4 = random.nextInt(RoomTimeTable.NUM_DAYS);
 		int room4 = random.nextInt(rttList.length);
 		int event4 = rttList[room4].getEvent(day4, timeslot4);
-		while(event4 != 0) {
+		int i = 0;
+		while(event4 != 0 || (timeslot3 == timeslot4 && day3 == day4 && room3 == room4)) {
+			i++;
 			timeslot4 = random.nextInt(RoomTimeTable.NUM_TIMESLOTS);
 			day4 = random.nextInt(RoomTimeTable.NUM_DAYS);
 			room4 = random.nextInt(rttList.length);
 			event4 = rttList[room4].getEvent(day4, timeslot4);
+			if (i > 10) {
+				return; // TODO add to all similar while loops or find better solution
+			}
 		}
 		// Remove events
 		rttList[room1].setEvent(day1, timeslot1, 0);
 		rttList[room2].setEvent(day2, timeslot2, 0);
 		
 		// Put them back at new timeslots
-		rttList[room3].setEvent(day3, timeslot3, 1);
-		rttList[room4].setEvent(day4, timeslot4, 2);
+		rttList[room3].setEvent(day3, timeslot3, event1);
+		rttList[room4].setEvent(day4, timeslot4, event2);
 		
 	}
 	
