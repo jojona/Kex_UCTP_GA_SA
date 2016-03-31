@@ -7,13 +7,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class Metaheuristic {
+public abstract class Metaheuristic {
 
+	public static long TIME_LIMIT = 90000;
+	
 	protected KTH kth;
 	protected Constraints constraints;
 	
 	public Metaheuristic() {
 	}
+	
+	public abstract String getConf();
 
 	//////////////////////////
 	// SETUP

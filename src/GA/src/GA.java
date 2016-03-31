@@ -8,6 +8,7 @@ import java.util.ListIterator;
 import java.util.Random;
 
 import main.Constraints;
+import main.Main;
 import main.Metaheuristic;
 import main.RoomTimeTable;
 import main.TimeTable;
@@ -47,6 +48,8 @@ public class GA extends Metaheuristic {
 
 	// algorithm parameters
 	private int DESIRED_FITNESS;
+	private int SAMEVALUE_LIMIT;
+	
 	private int MAX_POPULATION_SIZE;
 	private int MUTATION_PROBABILITY; // compared with 1000
 	private int CROSSOVER_PROBABILITY; // compared with 1000
@@ -66,6 +69,8 @@ public class GA extends Metaheuristic {
 		constraints = new Constraints(kth);
 		
 		// setup the genetic algorithm
+		setDesiredFitness(0);
+		setSamevalueLimit(1000);
 		setMutationProbability(60);
 		setCrossoverProbability(500);
 		setPopulationSize(100);
@@ -77,7 +82,7 @@ public class GA extends Metaheuristic {
 	/*
 	 * Returns a schedule based on the given constraints
 	 */
-	public TimeTable generateTimeTable() {
+	public TimeTable generateTimeTable(long startTime) {
 		// run until the fitness is high enough
 		// high enough should at least mean that
 		// all hard constraints are solved
@@ -94,16 +99,37 @@ public class GA extends Metaheuristic {
 
 		population.sortIndividuals();
 
+		boolean stop = false;
+		int oldBestFitness = Integer.MIN_VALUE;
+		int newBestValueGeneration = 0;
+		
 		numGenerations = 1;
-		while (population.getTopIndividual().getFitness() < DESIRED_FITNESS) {
+		while (!stop) {
 			Population children = breed(population, MAX_POPULATION_SIZE);
 			population = selection(population, children);
 
 			// sort the population by their fitness
 			// not needed
 			population.sortIndividuals();
-
 			numGenerations++;
+
+			// Stopping conditions
+			if ((System.currentTimeMillis() - startTime > Metaheuristic.TIME_LIMIT) 
+					|| (population.getTopIndividual().getFitness() > DESIRED_FITNESS)) {
+					stop = true;
+			}
+			int bestFitness = population.getTopIndividual().getFitness();
+			if (bestFitness == oldBestFitness) {
+				if (numGenerations - newBestValueGeneration > SAMEVALUE_LIMIT) {
+					stop = true;						
+				}
+			} else {
+				newBestValueGeneration = numGenerations;
+				population.getTopIndividual().setCreatedTime();
+				oldBestFitness = bestFitness;
+			}
+			
+			if (Main.debug)
 			System.out.println(
 					"#GENERATIONS: " + numGenerations + " BEST FITNESS: " + population.getTopIndividual().getFitness());
 		}
@@ -376,6 +402,14 @@ public class GA extends Metaheuristic {
 		}
 	}
 
+	public void setSamevalueLimit(int p) {
+		SAMEVALUE_LIMIT = p;
+	}
+	
+	public void setDesiredFitness(int p) {
+		DESIRED_FITNESS = p;
+	}
+	
 	public void setMutationProbability(int p) {
 		MUTATION_PROBABILITY = p;
 	}
@@ -400,13 +434,19 @@ public class GA extends Metaheuristic {
 		selectionType = i;
 	}
 
-	public void printConf() {
-		System.out.println("Desired fitness: " + DESIRED_FITNESS);
-		System.out.println("Population size: " + MAX_POPULATION_SIZE);
-		System.out.println("Selection size: " + SELECTION_SIZE);
-		System.out.println("Mutation type: " + mutationType);
-		System.out.println("P(Mutation) = " + ((double) MUTATION_PROBABILITY / 1000.0d * 100) + "%");
-		System.out.println("Selection type: " + selectionType);
-		System.out.println("P(Crossover) = " + ((double) CROSSOVER_PROBABILITY / 1000.0d * 100) + "%");
+	@Override
+	public String getConf() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Desired fitness: " + DESIRED_FITNESS + "\n");
+		sb.append("Stuck limit: " + SAMEVALUE_LIMIT + "\n");
+		
+		sb.append("Population size: " + MAX_POPULATION_SIZE + "\n");
+		sb.append("Selection size: " + SELECTION_SIZE + "\n");
+		sb.append("Mutation type: " + mutationType + "\n");
+		sb.append("P(Mutation) = " + ((double) MUTATION_PROBABILITY / 1000.0d * 100) + "%" + "\n");
+		sb.append("Selection type: " + selectionType);
+		sb.append("P(Crossover) = " + ((double) CROSSOVER_PROBABILITY / 1000.0d * 100) + "%" + "\n");
+		
+		return sb.toString();
 	}
 }

@@ -1,213 +1,280 @@
 package main;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class Constraints {
-	
+
 	KTH kth;
-	
+
 	public Constraints(KTH kth) {
 		this.kth = kth;
 	}
-	
-	  //////////////////////////
-	  // FITNESS
-	  //////////////////////////
 
-	  public void fitness(TimeTable tt) {
-	    // set the fitness to this time table
-	    
-	    int studentGroupDoubleBookings = studentGroupDoubleBookings(tt);
-	    int lecturerDoubleBookings = lecturerDoubleBookings(tt);
-	    int roomCapacityBreaches = roomCapacityBreaches(tt);
-	    int roomTypeBreaches = roomTypeBreaches(tt);
+	//////////////////////////
+	// FITNESS
+	//////////////////////////
 
-	    int numBreaches = studentGroupDoubleBookings * 2+
-	                      lecturerDoubleBookings +
-	                      roomCapacityBreaches * 4 +
-	                      roomTypeBreaches * 4;
+	public void fitness(TimeTable tt) {
+		// set the fitness to this time table
 
-	    int fitness = -1 * numBreaches;
-	    tt.setFitness(fitness);
-	  }
+		int studentGroupDoubleBookings = studentGroupDoubleBookings(tt);
+		int lecturerDoubleBookings = lecturerDoubleBookings(tt);
+		int roomCapacityBreaches = roomCapacityBreaches(tt);
+		int roomTypeBreaches = roomTypeBreaches(tt);
 
-	  //////////////////////////
-	  // CONSTRAINTS
-	  //////////////////////////
+		// Hard;
+		int numBreaches = studentGroupDoubleBookings * 2 + lecturerDoubleBookings + roomCapacityBreaches * 4
+				+ roomTypeBreaches * 4;
+		numBreaches *= 10;
 
-	  ///////////////////
-	  // Hard constraints, each function returns the number of constraint breaches
-	  ///////////////////
+		numBreaches += minimumWorkingDays(tt) + sameRoom(tt);
 
-	  // NOTE: Two of the hard constraints are solved by the chosen datastructure
-	  // Invalid timeslots may not be used
-	  // A room can not be double booked at a certain timeslot
+		int fitness = -1 * numBreaches;
+		tt.setFitness(fitness);
+	}
 
-	  private int studentGroupDoubleBookings(TimeTable tt) {
-	    int numBreaches = 0;
+	//////////////////////////
+	// CONSTRAINTS
+	//////////////////////////
 
-	    RoomTimeTable[] rtts = tt.getRoomTimeTables();
+	///////////////////
+	// Hard constraints, each function returns the number of constraint breaches
+	///////////////////
 
-	    for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS;
-	                                                        timeslot++) {
-	      for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
-	        for (StudentGroup sg : kth.getStudentGroups().values()) {
-	          
-	          HashMap<Integer, Integer> eventGroupCounts = 
-	          new HashMap<Integer, Integer>();
+	// NOTE: Two of the hard constraints are solved by the chosen datastructure
+	// Invalid timeslots may not be used
+	// A room can not be double booked at a certain timeslot
 
-	          for (RoomTimeTable rtt : rtts) {
-	            int eventID = rtt.getEvent(day, timeslot);
+	private int studentGroupDoubleBookings(TimeTable tt) {
+		int numBreaches = 0;
 
-	            // only look at booked timeslots
-	            if (eventID != 0) {
-	              Event event = kth.getEvent(eventID);
-	              int sgID = event.getStudentGroup().getId();
-	              
-	              // if this bookings is for the current studentgroup
-	              if (sgID == sg.getId()) {
-	                int eventGroupID = event.getEventGroupId();
-	                
-	                // increment the count for this event group id
-	                if (!eventGroupCounts.containsKey(eventGroupID)) {
-	                  eventGroupCounts.put(eventGroupID, 1);
-	                
-	                } else {
-	                  int oldCount = eventGroupCounts.get(eventGroupID);
-	                  eventGroupCounts.put(eventGroupID, oldCount + 1);
-	                }
-	              }
-	            }
-	          }
-	          
-	          // find the biggest event group
-	          int biggestGroup; 
-	          int biggestGroupSize = 0;
-	          int sumGroupSize = 0;
-	          for (Map.Entry<Integer, Integer> entry : 
-	                                  eventGroupCounts.entrySet()) {
-	            
-	            sumGroupSize += entry.getValue();
+		RoomTimeTable[] rtts = tt.getRoomTimeTables();
 
-	            if (entry.getValue() > biggestGroupSize) {
-	              biggestGroup = entry.getKey();
-	              biggestGroupSize = entry.getValue();
-	            }
-	          }
+		for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS; timeslot++) {
+			for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
+				for (StudentGroup sg : kth.getStudentGroups().values()) {
 
-	          numBreaches += sumGroupSize - biggestGroupSize;
-	        }
-	      }
-	    }
+					HashMap<Integer, Integer> eventGroupCounts = new HashMap<Integer, Integer>();
 
-	    return numBreaches;
-	  }
+					for (RoomTimeTable rtt : rtts) {
+						int eventID = rtt.getEvent(day, timeslot);
 
-	  // num times a lecturer is double booked
-	  // NOTE: lecturers are only booked to lectures
-	  // for the labs and classes, TAs are used and they are assumed to always
-	  // be available
-	  private int lecturerDoubleBookings(TimeTable tt) {
-	    int numBreaches = 0;
+						// only look at booked timeslots
+						if (eventID != 0) {
+							Event event = kth.getEvent(eventID);
+							int sgID = event.getStudentGroup().getId();
 
-	    RoomTimeTable[] rtts = tt.getRoomTimeTables();
+							// if this bookings is for the current studentgroup
+							if (sgID == sg.getId()) {
+								int eventGroupID = event.getEventGroupId();
 
-	    for (Lecturer lecturer : kth.getLecturers().values()) {
+								// increment the count for this event group id
+								if (!eventGroupCounts.containsKey(eventGroupID)) {
+									eventGroupCounts.put(eventGroupID, 1);
 
-	      // for each time
-	      for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS;
-	                                                           timeslot++) {
+								} else {
+									int oldCount = eventGroupCounts.get(eventGroupID);
+									eventGroupCounts.put(eventGroupID, oldCount + 1);
+								}
+							}
+						}
+					}
 
-	        for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
-	          int numBookings = 0;
+					// find the biggest event group
+					int biggestGroup;
+					int biggestGroupSize = 0;
+					int sumGroupSize = 0;
+					for (Map.Entry<Integer, Integer> entry : eventGroupCounts.entrySet()) {
 
-	          for (RoomTimeTable rtt : rtts) {
-	            int eventID = rtt.getEvent(day, timeslot);
+						sumGroupSize += entry.getValue();
 
-	            // 0 is unbooked
-	            if (eventID != 0) {
-	              Event event = kth.getEvent(eventID);
-	              // only check lectures since lecturers are only
-	              // attached to lecture events
-	              if (event.getType() == Event.Type.LECTURE) {
-	                if (event.getLecturer().getId() == lecturer.getId()) {
-	                  numBookings++;
-	                }
-	              }
-	            }
-	          }
+						if (entry.getValue() > biggestGroupSize) {
+							biggestGroup = entry.getKey();
+							biggestGroupSize = entry.getValue();
+						}
+					}
 
-	          // only one booking per time is allowed
-	          if (numBookings > 1) {
+					numBreaches += sumGroupSize - biggestGroupSize;
+				}
+			}
+		}
+		return numBreaches;
+	}
 
-	            // add all extra bookings to the number of constraint breaches
-	            numBreaches += numBookings - 1;
-	          }
-	        }
-	      }
-	    }
+	// num times a lecturer is double booked
+	// NOTE: lecturers are only booked to lectures
+	// for the labs and classes, TAs are used and they are assumed to always
+	// be available
+	private int lecturerDoubleBookings(TimeTable tt) {
+		int numBreaches = 0;
 
-	    return numBreaches;
-	  }
+		RoomTimeTable[] rtts = tt.getRoomTimeTables();
 
-	  // num times a room is too small for the event booked
-	  private int roomCapacityBreaches(TimeTable tt) {
-	    int numBreaches = 0;
+		for (Lecturer lecturer : kth.getLecturers().values()) {
 
-	    RoomTimeTable[] rtts = tt.getRoomTimeTables();
+			// for each time
+			for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS; timeslot++) {
 
-	    for (RoomTimeTable rtt : rtts) {
-	      int roomSize = rtt.getRoom().getCapacity();
+				for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
+					int numBookings = 0;
 
-	      // for each time
-	      for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS;
-	                                                          timeslot++) {
+					for (RoomTimeTable rtt : rtts) {
+						int eventID = rtt.getEvent(day, timeslot);
 
-	        for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
-	          int eventID = rtt.getEvent(day, timeslot);
+						// 0 is unbooked
+						if (eventID != 0) {
+							Event event = kth.getEvent(eventID);
+							// only check lectures since lecturers are only
+							// attached to lecture events
+							if (event.getType() == Event.Type.LECTURE) {
+								if (event.getLecturer().getId() == lecturer.getId()) {
+									numBookings++;
+								}
+							}
+						}
+					}
 
-	          // only look at booked timeslots
-	          if (eventID != 0) {
-	            int eventSize = kth.getEvent(eventID).getSize();
-	            if (roomSize < eventSize) {
-	              numBreaches++;
-	            }
-	          }
-	        }
-	      }
-	    }
+					// only one booking per time is allowed
+					if (numBookings > 1) {
 
-	    return numBreaches;
-	  }
+						// add all extra bookings to the number of constraint
+						// breaches
+						numBreaches += numBookings - 1;
+					}
+				}
+			}
+		}
 
-	  // num times an event is booked to the wrong room type
-	  private int roomTypeBreaches(TimeTable tt) {
-	    int numBreaches = 0;
+		return numBreaches;
+	}
 
-	    RoomTimeTable[] rtts = tt.getRoomTimeTables();
+	// num times a room is too small for the event booked
+	private int roomCapacityBreaches(TimeTable tt) {
+		int numBreaches = 0;
 
-	    for (RoomTimeTable rtt : rtts) {
-	      Event.Type roomType = rtt.getRoom().getType();
+		RoomTimeTable[] rtts = tt.getRoomTimeTables();
 
-	      // for each time
-	      for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS;
-	                                                          timeslot++) {
+		for (RoomTimeTable rtt : rtts) {
+			int roomSize = rtt.getRoom().getCapacity();
 
-	        for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
-	          int eventID = rtt.getEvent(day, timeslot);
+			// for each time
+			for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS; timeslot++) {
 
-	          // only look at booked timeslots
-	          if (eventID != 0) {
-	            Event.Type type = kth.getEvent(eventID).getType();
-	            if (roomType != type) {
-	              numBreaches++;
-	            }
-	          }
-	        }
-	      }
-	    }
+				for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
+					int eventID = rtt.getEvent(day, timeslot);
 
-	    return numBreaches;
-	  }
+					// only look at booked timeslots
+					if (eventID != 0) {
+						int eventSize = kth.getEvent(eventID).getSize();
+						if (roomSize < eventSize) {
+							numBreaches++;
+						}
+					}
+				}
+			}
+		}
+
+		return numBreaches;
+	}
+
+	// num times an event is booked to the wrong room type
+	private int roomTypeBreaches(TimeTable tt) {
+		int numBreaches = 0;
+
+		RoomTimeTable[] rtts = tt.getRoomTimeTables();
+
+		for (RoomTimeTable rtt : rtts) {
+			Event.Type roomType = rtt.getRoom().getType();
+
+			// for each time
+			for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS; timeslot++) {
+
+				for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
+					int eventID = rtt.getEvent(day, timeslot);
+
+					// only look at booked timeslots
+					if (eventID != 0) {
+						Event.Type type = kth.getEvent(eventID).getType();
+						if (roomType != type) {
+							numBreaches++;
+						}
+					}
+				}
+			}
+		}
+
+		return numBreaches;
+	}
+
+	///////////////////
+	// Soft constraints, each function returns the number of constraint breaches
+	///////////////////
+
+	private int minimumWorkingDays(TimeTable tt) {
+		int numBreaches = 0;
+
+		RoomTimeTable[] rtts = tt.getRoomTimeTables();
+
+		for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
+
+			for (Course course : kth.getCourses().values()) {
+				int lecturesThisDay = 0;
+				for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS; timeslot++) {
+
+					for (RoomTimeTable rtt : rtts) {
+						int eventID = rtt.getEvent(day, timeslot);
+
+						if (eventID != 0) {
+							Event event = kth.getEvent(eventID);
+
+							if (event.getCourse() == course && event.getType() == Event.Type.LECTURE) {
+								lecturesThisDay++;
+							}
+						}
+
+					}
+				}
+				if (lecturesThisDay > 0) {
+					numBreaches += lecturesThisDay - 1;
+				}
+			}
+		}
+
+		return numBreaches;
+	}
+
+	private int sameRoom(TimeTable tt) {
+		int numBreaches = 0;
+
+		RoomTimeTable[] rtts = tt.getRoomTimeTables();
+
+		for (Course course : kth.getCourses().values()) {
+			LinkedList<Room> rooms = new LinkedList<Room>();
+			for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
+				for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS; timeslot++) {
+
+					for (RoomTimeTable rtt : rtts) {
+						int eventID = rtt.getEvent(day, timeslot);
+
+						if (eventID != 0) {
+							Event event = kth.getEvent(eventID);
+
+							if (event.getCourse() == course && event.getType() == Event.Type.LECTURE) {
+								if (!rooms.contains(rtt.getRoom())) {
+									rooms.add(rtt.getRoom());
+								}
+							}
+						}
+					}
+				}
+			}
+			if (rooms.size() > 0) {
+				numBreaches += rooms.size() - 1;
+			}
+		}
+
+		return numBreaches;
+	}
 }

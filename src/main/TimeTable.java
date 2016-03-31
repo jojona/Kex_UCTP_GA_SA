@@ -2,12 +2,14 @@ package main;
 
 public class TimeTable implements Comparable<TimeTable> {
   private int fitness;
-
+  private long createdTime;
+  public long time;
   // The timetables for each room
   private RoomTimeTable[] roomTimeTables;
 
   public TimeTable(int numRooms) {
     roomTimeTables = new RoomTimeTable[numRooms];
+    createdTime = System.currentTimeMillis();
   }
   
   public TimeTable(TimeTable tt) {
@@ -15,11 +17,21 @@ public class TimeTable implements Comparable<TimeTable> {
 	  for (int i = 0; i < tt.roomTimeTables.length; i++) {
 		roomTimeTables[i] = new RoomTimeTable(tt.roomTimeTables[i]);
 	  }
+	  this.fitness = tt.fitness;
+	  this.createdTime = System.currentTimeMillis();
 	  
   }
   
   public int getFitness() {
     return fitness;
+  }
+  
+  public long getCreatedTime() {
+	  return createdTime;
+  }
+  
+  public void setCreatedTime() {
+	  createdTime = System.currentTimeMillis();
   }
 
   public void setFitness(int fitness) {

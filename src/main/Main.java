@@ -9,17 +9,19 @@ import SA.SA;
 
 public class Main {
 	static String path = "src/GA/input/";
-	static String file = "kth_XS";
-	static String outputName = "output/testOutput";
+	static String file = "kth_L";
+	static String outputName = "output/";
 
 	static String output;
 	
-	public static void main(String[] args) {
+	public final static boolean debug = false;
+	
+	public static void main(String[] args) {	
 		Main.path += Main.file;
 
 		for (int i = 0; i < 10; i++) {
-			Main.output = Main.outputName + i;
-			Main.output += "_" + Main.file + "_";
+			Main.output = Main.outputName + Main.file + "_" + i + "_";
+			System.out.println("Lap: " + i);
 			Main main = new Main();
 			main.SA();
 
@@ -32,39 +34,73 @@ public class Main {
 	public void SA() {
 		SA sa = new SA();
 		sa.setup(path);
-		sa.printConf();
-		sa.run();
-
-		printTimeTable(sa.getResult(), "SA", "Globalit: " + sa.globalIterations);
+		sa.SAMEVALUE_LIMIT = Integer.MAX_VALUE;
+		
+		// Start time
+		long startTime = System.currentTimeMillis();
+		
+		sa.run(startTime);
+		
+		// End time
+		long endTime = System.currentTimeMillis();
+		long time = endTime - startTime;
+		
+		sa.getResult().time = sa.getResult().getCreatedTime() - startTime;
+		System.out.println("SA done");
+		printTimeTable(sa.getResult(), time, "SA", "Globalit: " + sa.globalIterations, sa.kth, sa.getConf());
 	}
 
 	public void GA() {
 		GA ga = new GA();
 		ga.setup(path);
-		ga.printConf();
-		TimeTable bestTimeTable = ga.generateTimeTable();
-		printTimeTable(bestTimeTable, "GA", "Generations: " + ga.numGenerations);
+		ga.setSamevalueLimit(Integer.MAX_VALUE);
+		// Start time
+		long startTime = System.currentTimeMillis();
+		
+		TimeTable bestTimeTable = ga.generateTimeTable(startTime);
+		
+		// End time
+		long endTime = System.currentTimeMillis();
+		long time = endTime - startTime;
+		
+		bestTimeTable.time = bestTimeTable.getCreatedTime() - startTime;
+		
+		System.out.println("GA done");
+		printTimeTable(bestTimeTable, time, "GA", "Generations: " + ga.numGenerations, ga.kth, ga.getConf());
 	}
 
 	public void GASA() {
 		GA ga = new GA();
 		ga.setup(path);
-
-		// TODO ga.setStopCondition();
-		ga.printConf();
-
-		TimeTable bestTimeTable = ga.generateTimeTable();
-
+		
+		// Set GA desiredFitness
+		ga.setDesiredFitness(-9);
+		ga.setSamevalueLimit(100);
+		
 		SA sa = new SA();
-		sa.setup(bestTimeTable, ga.kth, ga.constraints);
-		sa.printConf();
-		sa.run();
+		sa.setup(ga.kth, ga.constraints);
 
-		printTimeTable(sa.getResult(), "GASA",
-				"Globalit: " + sa.globalIterations + " Generations: " + ga.numGenerations);
+		// Start time
+		long startTime = System.currentTimeMillis();
+		
+		TimeTable bestTimeTable = ga.generateTimeTable(startTime);
+
+		sa.setSolution(bestTimeTable);
+		// TODO Set SA temperature?
+		sa.setInitialTemperature(4.3);
+		sa.run(startTime);
+		
+		// End time
+		long endTime = System.currentTimeMillis();
+		long time = endTime - startTime;
+		sa.getResult().time = sa.getResult().getCreatedTime() - startTime;
+		
+		System.out.println("GA_SA done");
+		printTimeTable(sa.getResult(), time, "GASA",
+				"Globalit: " + sa.globalIterations + " Generations: " + ga.numGenerations, sa.kth, sa.getConf() + ga.getConf());
 	}
 
-	public void printTimeTable(TimeTable tt, String name, String result) {
+	public void printTimeTable(TimeTable tt, long time, String name, String result, KTH kth, String config) {
 		StringBuilder sb = new StringBuilder();
 		int nrSlots = 0;
 		int nrEvents = 0;
@@ -79,15 +115,17 @@ public class Main {
 						nrEvents = eventId;
 					}
 					nrSlots++;
-					/*
-					 * if(eventId != 0) { //Event event = events.get(eventId);
-					 * sb.append("[ " + event.getCourse().getId() + " " +
-					 * event.getStudentGroup().getName() + " ");
-					 * if(event.getType() == Event.Type.LECTURE) {
-					 * sb.append(event.getLecturer().getName() + " ]"); } else {
-					 * sb.append("    ]"); } } else { sb.append("[    -    ]");
-					 * }
-					 */
+					if (Main.debug) {
+						if(eventId != 0) {
+						Event event = kth.getEvent(eventId);
+						sb.append("[ " + event.getCourse().getId() + " " +
+						event.getStudentGroup().getName() + " ");
+						if(event.getType() == Event.Type.LECTURE) {
+						sb.append(event.getLecturer().getName() + " ]"); } else {
+						sb.append("    ]"); } } else { sb.append("[      -     ]");
+						}
+					}
+					
 					sb.append("[\t" + eventId + "\t]");
 				}
 				sb.append("\n");
@@ -97,11 +135,17 @@ public class Main {
 		BufferedWriter outputStream;
 		try {
 			outputStream = new BufferedWriter(new FileWriter(output + "_" + name + ".txt"));
-			outputStream.write(sb.toString());
 			outputStream.write("Number of slots: " + nrSlots + "\n");
 			outputStream.write("Number of events: " + nrEvents + "\n");
 			outputStream.write("Sparseness: " + ((double) nrEvents / (double) nrSlots) + "\n");
 			outputStream.write("\n" + result + "\n");
+			outputStream.write("Fitness: " + tt.getFitness() + "\t Created: " + tt.time + "\n");
+			outputStream.write("Time: " + time + "ms\n\n");
+			
+			outputStream.write(Metaheuristic.TIME_LIMIT + "\n");
+			outputStream.write(config + "\n");
+			
+			outputStream.write(sb.toString());
 			outputStream.flush();
 			outputStream.close();
 
