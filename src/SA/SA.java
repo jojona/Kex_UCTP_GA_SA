@@ -16,11 +16,11 @@ public class SA extends Metaheuristic {
 
 	private Random random;
 
-	public double INITIAL_TEMPERATURE = 43;
-	public double CONSTANT_MY = -6.83E-4; // TODO find correct values
-	public int INITIAL_ITERATIONS = 100;
-	public int SAMEVALUE_LIMIT = 1000;
-	public int DESIRED_FITNESS = 0;
+	private double INITIAL_TEMPERATURE;
+	private double CONSTANT_MY;
+	private int INITIAL_ITERATIONS;
+	private int SAMEVALUE_LIMIT = 1000;
+	private int DESIRED_FITNESS;
 
 	private int iterations;
 	private double temperature;
@@ -35,25 +35,32 @@ public class SA extends Metaheuristic {
 
 	}
 
-	public void setup(KTH kth, Constraints constraints) {
+	public void defaultSetupGASA(KTH kth, Constraints constraints) {
 		this.kth = kth;
 		this.constraints = constraints;
 
-		temperature = INITIAL_TEMPERATURE;
-		iterations = INITIAL_ITERATIONS;
-		SAMEVALUE_LIMIT = 1000;
+		setInitialTemperature(4.3);
+		setInitialIterations(100);
+		setMy(-6.83E-4);
+		setDesiredFitness(0);
+		setSameValueLimit(Integer.MAX_VALUE);
 	}
 
-	public void setup(String filename) {
+	public void defaultSetup(String filename) {
 		loadData(filename);
 		constraints = new Constraints(kth);
-
-		temperature = INITIAL_TEMPERATURE;
-		iterations = INITIAL_ITERATIONS;
-		// TODO select cooling schedule
+		
+		setDesiredFitness(0);
+		setInitialTemperature(43);
+		setInitialIterations(100);
+		setMy(-6.83E-4);
+		setSameValueLimit(Integer.MAX_VALUE);
 	}
 
 	public void run(long startTime) {
+		temperature = INITIAL_TEMPERATURE;
+		iterations = INITIAL_ITERATIONS;
+		
 		if (solution == null) {
 			solution = initialSolution();
 		}
@@ -91,19 +98,15 @@ public class SA extends Metaheuristic {
 				}
 			}
 			oldBestFitness = best;
-			if (bestResult.getFitness() == DESIRED_FITNESS) {
+			if (bestResult.getFitness() >= DESIRED_FITNESS || System.currentTimeMillis() - startTime > Metaheuristic.TIME_LIMIT) {
 				stop = true;
 			}
 			
 			if (Main.debug)
 				System.out.println(
 						"#GlobalIteration: " + globalIterations + " CURRENT FITNESS: " + bestResult.getFitness());
-
 			nextCoolingstep();
 
-			if (bestResult.getFitness() == 0 || System.currentTimeMillis() - startTime > Metaheuristic.TIME_LIMIT) {
-				stop = true;
-			}
 			globalIterations++;
 		}
 	}
@@ -141,6 +144,18 @@ public class SA extends Metaheuristic {
 	 */
 	public void setInitialTemperature(double p) {
 		INITIAL_TEMPERATURE = p;
+	}
+	
+	public void setMy(double p){
+		CONSTANT_MY = p;
+	}
+	
+	public void setDesiredFitness(int p) {
+		DESIRED_FITNESS = p;
+	}
+	
+	public void setSameValueLimit(int p) {
+		SAMEVALUE_LIMIT = p;
 	}
 
 	/**

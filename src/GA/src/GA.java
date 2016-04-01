@@ -64,7 +64,7 @@ public class GA extends Metaheuristic {
 		super();
 	}
 
-	public void setup(String filename) {
+	public void defaultSetup(String filename) {
 		loadData(filename);
 		constraints = new Constraints(kth);
 		
