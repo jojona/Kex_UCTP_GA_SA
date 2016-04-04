@@ -92,11 +92,12 @@ public class SA extends Metaheuristic {
 			if (best == oldBestFitness) {
 				if (globalIterations - newBestValueIteration > SAMEVALUE_LIMIT) {
 					stop = true;
-				} else {
-					newBestValueIteration = globalIterations;
-				}
+				} 
+			} else {
+				newBestValueIteration = globalIterations;
+				oldBestFitness = best;
 			}
-			oldBestFitness = best;
+			
 			if (bestResult.getFitness() >= DESIRED_FITNESS || System.currentTimeMillis() - startTime > Metaheuristic.TIME_LIMIT) {
 				stop = true;
 			}
