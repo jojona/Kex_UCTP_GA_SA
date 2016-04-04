@@ -1,0 +1,9 @@
+Time: 1076 	CreatedTime: 1071 	Fitness: -3043 	Gatime: 1070 	FitnessLimit: 1
+Time: 1017 	CreatedTime: 1015 	Fitness: -3772 	Gatime: 1012 	FitnessLimit: 1
+Time: 1065 	CreatedTime: 1061 	Fitness: -3612 	Gatime: 1056 	FitnessLimit: 1
+Time: 1100 	CreatedTime: 1083 	Fitness: -3244 	Gatime: 1083 	FitnessLimit: 1
+Time: 1009 	CreatedTime: 1008 	Fitness: -3295 	Gatime: 1004 	FitnessLimit: 1
+Time: 1030 	CreatedTime: 1023 	Fitness: -3722 	Gatime: 1022 	FitnessLimit: 1
+Time: 1037 	CreatedTime: 1037 	Fitness: -3363 	Gatime: 1034 	FitnessLimit: 1
+Time: 1016 	CreatedTime: 1016 	Fitness: -3853 	Gatime: 1013 	FitnessLimit: 1
+Time: 1063 	CreatedTime: 1063 	Fitness: -3705 	Gatime: 1061 	FitnessLimit: 1

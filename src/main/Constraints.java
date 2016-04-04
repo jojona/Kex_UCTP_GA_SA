@@ -34,6 +34,17 @@ public class Constraints {
 		int fitness = -1 * numBreaches;
 		tt.setFitness(fitness);
 	}
+	
+	public int hardConstraints(TimeTable tt) {
+		int studentGroupDoubleBookings = studentGroupDoubleBookings(tt);
+		int lecturerDoubleBookings = lecturerDoubleBookings(tt);
+		int roomCapacityBreaches = roomCapacityBreaches(tt);
+		int roomTypeBreaches = roomTypeBreaches(tt);
+
+		// Hard;
+		int numBreaches = studentGroupDoubleBookings + lecturerDoubleBookings + roomCapacityBreaches + roomTypeBreaches;
+		return numBreaches;
+	}
 
 	//////////////////////////
 	// CONSTRAINTS

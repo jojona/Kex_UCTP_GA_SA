@@ -70,7 +70,7 @@ public class GA extends Metaheuristic {
 		
 		// setup the genetic algorithm
 		setDesiredFitness(0);
-		setSamevalueLimit(1000);
+		setSamevalueLimit(Integer.MAX_VALUE);
 		setMutationProbability(60);
 		setCrossoverProbability(500);
 		setPopulationSize(100);

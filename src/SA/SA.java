@@ -40,7 +40,7 @@ public class SA extends Metaheuristic {
 		this.constraints = constraints;
 
 		setInitialTemperature(4.3);
-		setInitialIterations(100);
+		setInitialIterations(10);
 		setMy(-6.83E-4);
 		setDesiredFitness(0);
 		setSameValueLimit(Integer.MAX_VALUE);
@@ -51,8 +51,8 @@ public class SA extends Metaheuristic {
 		constraints = new Constraints(kth);
 		
 		setDesiredFitness(0);
-		setInitialTemperature(43);
-		setInitialIterations(100);
+		setInitialTemperature(4.3);
+		setInitialIterations(10);
 		setMy(-6.83E-4);
 		setSameValueLimit(Integer.MAX_VALUE);
 	}
@@ -77,8 +77,7 @@ public class SA extends Metaheuristic {
 				int delta = testSolution.getFitness() - solution.getFitness();
 
 				// Interval of delta 0-30
-				// System.out.println(delta + " " + temperature + " " +
-				// currentSolution.getFitness() + " " + solution.getFitness());
+				//System.out.println(delta + " " + temperature + " " + testSolution.getFitness() + " " + solution.getFitness());
 
 				if (delta > 0 || (Math.exp(delta / temperature) > random.nextFloat())) {
 					solution = testSolution;

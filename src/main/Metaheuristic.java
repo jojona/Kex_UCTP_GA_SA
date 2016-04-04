@@ -17,6 +17,10 @@ public abstract class Metaheuristic {
 	public Metaheuristic() {
 	}
 	
+	public int hardConstraints(TimeTable tt) {
+		return constraints.hardConstraints(tt);
+	}
+	
 	public abstract String getConf();
 
 	//////////////////////////
