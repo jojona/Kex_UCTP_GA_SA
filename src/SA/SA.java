@@ -33,7 +33,6 @@ public class SA extends Metaheuristic {
 	public SA() {
 		super();
 		random = new Random();
-
 	}
 	
 	//////////////////////////
