@@ -14,7 +14,7 @@ public class Main {
 
 	static String output;
 
-	public final static boolean debug = true;
+	public final static boolean debug = false;
 
 	public static void main(String[] args) {
 		Main.path += Main.file;
@@ -54,8 +54,9 @@ public class Main {
 			outputStreamM = new BufferedWriter(new FileWriter("gasaTimeTestLargeMatlab.txt"));
 
 			for (int time : testTime) {
+				System.out.print("Time: " + time);
 				for (int i = 0; i < 9; ++i) {
-
+					
 					// Time limit
 					GA ga = new GA();
 					ga.defaultSetup(path);
@@ -86,15 +87,18 @@ public class Main {
 							+ sa.getResult().getFitness() + " " + (gatimeTable.getCreatedTime()  - startTime)+ " " + time + "\n");
 					outputStream.flush();
 					outputStreamM.flush();
+					System.out.print(" " + i);
 				}
+				System.out.println();
 			}
 			outputStream.close();
 			outputStreamM.close();
-
+			
 			outputStream = new BufferedWriter(new FileWriter("gasaStuckTestLarge.txt"));
 			outputStreamM = new BufferedWriter(new FileWriter("gasaStuckTestLargeMatlab.txt"));
 
 			for (int stuck : testStuck) {
+				System.out.print("Stuck: " + stuck);
 				for (int i = 0; i < 9; ++i) {
 					// Stuck limit
 					GA ga2 = new GA();
@@ -126,7 +130,9 @@ public class Main {
 							+ sa2.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime)+ " " + stuck + "\n");
 					outputStream.flush();
 					outputStreamM.flush();
+					System.out.print(" " + i);
 				}
+				System.out.println();
 			}
 
 			outputStream.close();
@@ -135,11 +141,12 @@ public class Main {
 			outputStream = new BufferedWriter(new FileWriter("gasaFitTestLarge.txt"));
 			outputStreamM = new BufferedWriter(new FileWriter("gasaFitTestLargeMatlab.txt"));
 			for (int fit : testFitness) {
+				System.out.print("Fitness: " + fit);
 				for (int i = 0; i < 9; ++i) {
 					// Fitness goal
 					GA ga3 = new GA();
 					ga3.defaultSetup(path);
-					Metaheuristic.TIME_LIMIT = 1 * 1000;
+					Metaheuristic.TIME_LIMIT = 200 * 1000;
 					ga3.setDesiredFitness(fit);
 
 					SA sa3 = new SA();
@@ -167,8 +174,10 @@ public class Main {
 							+ sa3.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " " + fit + "\n");
 					outputStream.flush();
 					outputStreamM.flush();
+					System.out.print(" " + i);
 
 				}
+				System.out.println();
 			}
 			outputStream.close();
 			outputStreamM.close();

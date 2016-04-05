@@ -19,12 +19,13 @@ public class SA extends Metaheuristic {
 	private double INITIAL_TEMPERATURE;
 	private double CONSTANT_MY;
 	private int INITIAL_ITERATIONS;
-	private int SAMEVALUE_LIMIT = 1000;
+	private int SAMEVALUE_LIMIT;
 	private int DESIRED_FITNESS;
 
 	private int iterations;
 	private double temperature;
 	public int globalIterations = 0;
+	int neighbour_i = 0;
 
 	private TimeTable solution = null;
 	private TimeTable bestResult;
@@ -34,6 +35,10 @@ public class SA extends Metaheuristic {
 		random = new Random();
 
 	}
+	
+	//////////////////////////
+	// Setup functions
+	//////////////////////////
 
 	public void defaultSetupGASA(KTH kth, Constraints constraints) {
 		this.kth = kth;
@@ -50,13 +55,31 @@ public class SA extends Metaheuristic {
 		loadData(filename);
 		constraints = new Constraints(kth);
 		
-		setDesiredFitness(0);
 		setInitialTemperature(4.3);
 		setInitialIterations(10);
 		setMy(-6.83E-4);
+		setDesiredFitness(0);
 		setSameValueLimit(Integer.MAX_VALUE);
 	}
+	
+	/**
+	 * Calculate initial solution
+	 * 
+	 * @return
+	 */
+	private TimeTable initialSolution() {
+		Population p = new Population();
+		Map<Integer, Room> rooms = kth.getRooms();
+		int numRooms = kth.getRooms().size();
+		TimeTable invidual = p.generateRandomInvidual(kth, rooms, numRooms);
+		constraints.fitness(invidual);
+		return invidual;
+	}
 
+	//////////////////////////
+	// Main algorithm functions
+	//////////////////////////
+	
 	public void run(long startTime) {
 		temperature = INITIAL_TEMPERATURE;
 		iterations = INITIAL_ITERATIONS;
@@ -92,11 +115,12 @@ public class SA extends Metaheuristic {
 			if (best == oldBestFitness) {
 				if (globalIterations - newBestValueIteration > SAMEVALUE_LIMIT) {
 					stop = true;
-				} else {
-					newBestValueIteration = globalIterations;
-				}
+				} 
+			} else {
+				newBestValueIteration = globalIterations;
+				oldBestFitness = best;
 			}
-			oldBestFitness = best;
+			
 			if (bestResult.getFitness() >= DESIRED_FITNESS || System.currentTimeMillis() - startTime > Metaheuristic.TIME_LIMIT) {
 				stop = true;
 			}
@@ -104,60 +128,22 @@ public class SA extends Metaheuristic {
 			if (Main.debug)
 				System.out.println(
 						"#GlobalIteration: " + globalIterations + " CURRENT FITNESS: " + bestResult.getFitness());
-			nextCoolingstep();
-
+			
+			nextCoolingstep(globalIterations);
 			globalIterations++;
 		}
 	}
-
+	
 	/**
-	 * Calculate initial solution
-	 * 
-	 * @return
+	 * Cooling schedule
 	 */
-	private TimeTable initialSolution() {
-		Population p = new Population();
-		Map<Integer, Room> rooms = kth.getRooms();
-		int numRooms = kth.getRooms().size();
-		TimeTable invidual = p.generateRandomInvidual(kth, rooms, numRooms);
-		constraints.fitness(invidual);
-		return invidual;
-	}
-
-	public void setSolution(TimeTable tt) {
-		solution = tt;
-		constraints.fitness(solution);
-	}
-
-	/**
-	 * Calculate initial iterations
-	 * 
-	 * @return
-	 */
-	public void setInitialIterations(int p) {
-		INITIAL_ITERATIONS = p;
-	}
-
-	/**
-	 * Calculate initial temperature
-	 */
-	public void setInitialTemperature(double p) {
-		INITIAL_TEMPERATURE = p;
+	private void nextCoolingstep(int iter) {
+		temperature = INITIAL_TEMPERATURE * Math.exp(CONSTANT_MY * iter);
 	}
 	
-	public void setMy(double p){
-		CONSTANT_MY = p;
-	}
-	
-	public void setDesiredFitness(int p) {
-		DESIRED_FITNESS = p;
-	}
-	
-	public void setSameValueLimit(int p) {
-		SAMEVALUE_LIMIT = p;
-	}
-
-	int i = 0;
+	//////////////////////////
+	// Neighbourhood search methods
+	//////////////////////////
 	
 	/**
 	 * Neighbourhood search
@@ -170,15 +156,15 @@ public class SA extends Metaheuristic {
 		TimeTable copy = new TimeTable(tt);
 		RoomTimeTable[] rttList = copy.getRoomTimeTables();
 		
-		if (i == 0) {
+		if (neighbour_i == 0) {
 			swap(rttList);
-			i++;
-		} else if (i == 1) {
+			neighbour_i++;
+		} else if (neighbour_i == 1) {
 			simpleSearch(rttList);
-			i++;
+			neighbour_i++;
 		} else {
 			simpleAndSwap(rttList);
-			i = 0;
+			neighbour_i = 0;
 		}
 
 		return copy;
@@ -299,13 +285,9 @@ public class SA extends Metaheuristic {
 
 	}
 
-	/**
-	 * Cooling schedule
-	 */
-	private void nextCoolingstep() {
-		temperature = INITIAL_TEMPERATURE * Math.exp(CONSTANT_MY * globalIterations);
-		// iterations = iterations;
-	}
+	//////////////////////////
+	// Get and set methods
+	////////////////////////// 
 
 	public TimeTable getResult() {
 		return bestResult;
@@ -317,10 +299,55 @@ public class SA extends Metaheuristic {
 		
 		sb.append("Initialtemperature: " + INITIAL_TEMPERATURE + "\n");
 		sb.append("InitialIterations: " + INITIAL_ITERATIONS + "\n");
+		sb.append("My value: " + CONSTANT_MY + "\n");
 		sb.append("Stuck limit: " + SAMEVALUE_LIMIT + "\n");
 		sb.append("Desired fitness: " + DESIRED_FITNESS + "\n");
 		
 		return sb.toString();
+	}
+	
+	/**
+	 * Set initial solution, fed from previous algorithm
+	 * @param tt
+	 */
+	public void setSolution(TimeTable tt) {
+		solution = tt;
+		constraints.fitness(solution);
+	}
+
+	/**
+	 * Set initial iterations
+	 */
+	public void setInitialIterations(int p) {
+		INITIAL_ITERATIONS = p;
+	}
+
+	/**
+	 * Set initial temperature
+	 */
+	public void setInitialTemperature(double p) {
+		INITIAL_TEMPERATURE = p;
+	}
+	
+	/**
+	 * Set my value
+	 */
+	public void setMy(double p){
+		CONSTANT_MY = p;
+	}
+	
+	/**
+	 * Set fitness stopping condition
+	 */
+	public void setDesiredFitness(int p) {
+		DESIRED_FITNESS = p;
+	}
+	
+	/**
+	 * Set stuck stopping condition
+	 */
+	public void setSameValueLimit(int p) {
+		SAMEVALUE_LIMIT = p;
 	}
 
 }

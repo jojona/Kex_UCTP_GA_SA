@@ -75,7 +75,7 @@ public class GA extends Metaheuristic {
 		setCrossoverProbability(500);
 		setPopulationSize(100);
 		setSelectionSize(30);
-		setSelectionType(GA.SELECTION_TYPE.NORMAL);
+		setSelectionType(GA.SELECTION_TYPE.NORMAL); // TODO roulette_wheel?
 		setMutationType(GA.MUTATION_TYPE.NORMAL);
 	}
 
@@ -401,6 +401,10 @@ public class GA extends Metaheuristic {
 			}
 		}
 	}
+	
+	//////////////////////////
+	// Get and set methods
+	////////////////////////// 
 
 	public void setSamevalueLimit(int p) {
 		SAMEVALUE_LIMIT = p;
