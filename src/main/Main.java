@@ -16,24 +16,62 @@ public class Main {
 
 	public final static boolean debug = false;
 
+	private int fitnessGoal = -4;
+	private int runs = 20;
+
 	public static void main(String[] args) {
 		Main.path += Main.file;
 		Main main = new Main();
 
-		//main.testGASA();
-		// main.testSA();
+		// main.testGASA();
+		main.testSA();
 
-		for (int i = 0; i < 9; i++) {
-			Main.output = Main.outputName + Main.file + "_" + i + "_AllNeighbour";
-			System.out.println("Lap: " + i);
-			//main.GA();
+		// main.Runall();
 
-			main.SA();
+		//main.findSAdelta();
+	}
 
-			//main.GASA();
+	public void findSAdelta() {
 
+		for (int i = 0; i < 10; i++) {
+
+			SA sa = new SA();
+			sa.defaultSetup(path);
+			sa.testDelta();
 		}
+	}
 
+	public void Runall() {
+
+		BufferedWriter outputStreamSA;
+		BufferedWriter outputStreamGA;
+		BufferedWriter outputSteamGASA;
+
+		try {
+			outputStreamSA = new BufferedWriter(new FileWriter("saMainRun.txt"));
+			outputStreamGA = new BufferedWriter(new FileWriter("gaMainRun.txt"));
+			outputSteamGASA = new BufferedWriter(new FileWriter("gasaMainRun.txt"));
+
+			for (int i = 0; i < runs; i++) {
+				Main.output = Main.outputName + Main.file + "_" + i;
+				System.out.println("Lap: " + i);
+
+				// outputStreamGA.write(GA() + "\n");
+				// outputStreamGA.flush();
+
+				outputStreamSA.write(SA() + "\n");
+				outputStreamSA.flush();
+
+				// outputSteamGASA.write(GASA() + "\n");
+				// outputSteamGASA.flush();
+
+			}
+			outputStreamSA.close();
+			outputStreamGA.close();
+			outputSteamGASA.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void testGASA() {
@@ -56,7 +94,7 @@ public class Main {
 			for (int time : testTime) {
 				System.out.print("Time: " + time);
 				for (int i = 0; i < 9; ++i) {
-					
+
 					// Time limit
 					GA ga = new GA();
 					ga.defaultSetup(path);
@@ -80,11 +118,13 @@ public class Main {
 					runtime = endTime - startTime;
 					sa.getResult().time = sa.getResult().getCreatedTime() - startTime;
 
-					outputStream.write("Time: " + runtime + " \tCreatedTime: " + (sa.getResult().getCreatedTime()  - startTime)
-							+ " \tFitness " + sa.getResult().getFitness() + " \tGatime: " + (gatimeTable.getCreatedTime()  - startTime)
-							+ " \tTimeLimit " + time + "\n");
-					outputStreamM.write(runtime + " " + (sa.getResult().getCreatedTime()  - startTime) + " "
-							+ sa.getResult().getFitness() + " " + (gatimeTable.getCreatedTime()  - startTime)+ " " + time + "\n");
+					outputStream.write(
+							"Time: " + runtime + " \tCreatedTime: " + (sa.getResult().getCreatedTime() - startTime)
+									+ " \tFitness " + sa.getResult().getFitness() + " \tGatime: "
+									+ (gatimeTable.getCreatedTime() - startTime) + " \tTimeLimit " + time + "\n");
+					outputStreamM.write(runtime + " " + (sa.getResult().getCreatedTime() - startTime) + " "
+							+ sa.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " "
+							+ time + "\n");
 					outputStream.flush();
 					outputStreamM.flush();
 					System.out.print(" " + i);
@@ -93,7 +133,7 @@ public class Main {
 			}
 			outputStream.close();
 			outputStreamM.close();
-			
+
 			outputStream = new BufferedWriter(new FileWriter("gasaStuckTestLarge.txt"));
 			outputStreamM = new BufferedWriter(new FileWriter("gasaStuckTestLargeMatlab.txt"));
 
@@ -123,11 +163,13 @@ public class Main {
 					runtime = endTime - startTime;
 					sa2.getResult().time = sa2.getResult().getCreatedTime() - startTime;
 
-					outputStream.write("Time: " + runtime + " \tCreatedTime: " + (sa2.getResult().getCreatedTime() - startTime)
-							+ " \tFitness: " + sa2.getResult().getFitness() + " \tGatime: "
-							+ (gatimeTable.getCreatedTime() - startTime) + " \tStuckLimit: " + stuck + "\n");
+					outputStream.write(
+							"Time: " + runtime + " \tCreatedTime: " + (sa2.getResult().getCreatedTime() - startTime)
+									+ " \tFitness: " + sa2.getResult().getFitness() + " \tGatime: "
+									+ (gatimeTable.getCreatedTime() - startTime) + " \tStuckLimit: " + stuck + "\n");
 					outputStreamM.write(runtime + " " + (sa2.getResult().getCreatedTime() - startTime) + " "
-							+ sa2.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime)+ " " + stuck + "\n");
+							+ sa2.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " "
+							+ stuck + "\n");
 					outputStream.flush();
 					outputStreamM.flush();
 					System.out.print(" " + i);
@@ -167,11 +209,13 @@ public class Main {
 					runtime = endTime - startTime;
 					sa3.getResult().time = sa3.getResult().getCreatedTime() - startTime;
 
-					outputStream.write("Time: " + runtime + " \tCreatedTime: " + (sa3.getResult().getCreatedTime() - startTime)
-							+ " \tFitness: " + sa3.getResult().getFitness() + " \tGatime: "
-							+ (gatimeTable.getCreatedTime() - startTime)+ " \tFitnessLimit: " + fit + "\n");
+					outputStream.write(
+							"Time: " + runtime + " \tCreatedTime: " + (sa3.getResult().getCreatedTime() - startTime)
+									+ " \tFitness: " + sa3.getResult().getFitness() + " \tGatime: "
+									+ (gatimeTable.getCreatedTime() - startTime) + " \tFitnessLimit: " + fit + "\n");
 					outputStreamM.write(runtime + " " + (sa3.getResult().getCreatedTime() - startTime) + " "
-							+ sa3.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " " + fit + "\n");
+							+ sa3.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " "
+							+ fit + "\n");
 					outputStream.flush();
 					outputStreamM.flush();
 					System.out.print(" " + i);
@@ -188,9 +232,9 @@ public class Main {
 
 	public void testSA() {
 		Metaheuristic.TIME_LIMIT = 120000;
-		double[] testMy = { -6.83E-5, -6.83E-4, -6.83E-3 };
-		double[] testTemp = { 1, 4.3, 43, 100 };
-		int[] testIter = { 10, 100, 1000 }; // GOOD
+		double[] testMy = { -7, -8, -9, -10, -11 };
+		double[] testTemp = { 4.3, 6.5, 10, 13, 21.6 }; // Start at 0.01% 1% 5% 10% 25%
+		int[] testIter = { 10 }; // Max global iterations 20000
 
 		BufferedWriter outputStream;
 		BufferedWriter outputStreamM;
@@ -206,6 +250,10 @@ public class Main {
 							sa.setSameValueLimit(Integer.MAX_VALUE);
 							sa.setInitialIterations(iter);
 							sa.setInitialTemperature(temp);
+							
+							sa.setDesiredFitness(fitnessGoal);
+							
+							//my = Math.log((-30/(Math.log(0.001) * temp)) / 1500); // Note: not in first test
 							sa.setMy(my);
 
 							// Start time
@@ -242,11 +290,11 @@ public class Main {
 		}
 	}
 
-	public void SA() {
+	public String SA() {
 		SA sa = new SA();
 		sa.defaultSetup(path);
 		sa.setSameValueLimit(Integer.MAX_VALUE);
-
+		sa.setDesiredFitness(fitnessGoal);
 		// Start time
 		long startTime = System.currentTimeMillis();
 
@@ -260,12 +308,16 @@ public class Main {
 		System.out.println("SA done");
 		printTimeTable(sa.getResult(), time, "SA", "Globalit: " + sa.globalIterations, sa.kth, sa.getConf(),
 				sa.hardConstraints(sa.getResult()));
+
+		return "" + time;
 	}
 
-	public void GA() {
+	public String GA() {
 		GA ga = new GA();
 		ga.defaultSetup(path);
 		ga.setSamevalueLimit(Integer.MAX_VALUE);
+		ga.setDesiredFitness(fitnessGoal);
+		ga.setSelectionType(GA.SELECTION_TYPE.ROULETTE_WHEEL);
 		// Start time
 		long startTime = System.currentTimeMillis();
 
@@ -280,28 +332,31 @@ public class Main {
 		System.out.println("GA done");
 		printTimeTable(bestTimeTable, time, "GA", "Generations: " + ga.numGenerations, ga.kth, ga.getConf(),
 				ga.hardConstraints(bestTimeTable));
+
+		return "" + time;
 	}
 
-	public void GASA() {
+	public String GASA() {
 		GA ga = new GA();
 		ga.defaultSetup(path);
-
-		// Set GA desiredFitness
-		ga.setDesiredFitness(-9);
-		ga.setSamevalueLimit(100);
+		// TODO set best stopping condition
+		ga.setSelectionType(GA.SELECTION_TYPE.ROULETTE_WHEEL);
+		ga.setDesiredFitness(-500);
+		// Metaheuristic.TIME_LIMIT = 1000;
+		ga.setSamevalueLimit(Integer.MAX_VALUE);
 
 		SA sa = new SA();
 		sa.defaultSetupGASA(ga.kth, ga.constraints);
 		sa.setSameValueLimit(Integer.MAX_VALUE);
 		sa.setInitialTemperature(4.3);
-
+		sa.setDesiredFitness(fitnessGoal);
 		// Start time
 		long startTime = System.currentTimeMillis();
 
 		TimeTable bestTimeTable = ga.generateTimeTable(startTime);
 
 		sa.setSolution(bestTimeTable);
-
+		// Metaheuristic.TIME_LIMIT = 90 * 1000;
 		sa.run(startTime);
 
 		// End time
@@ -313,6 +368,8 @@ public class Main {
 		printTimeTable(sa.getResult(), time, "GASA",
 				"Globalit: " + sa.globalIterations + " Generations: " + ga.numGenerations, sa.kth,
 				sa.getConf() + ga.getConf(), sa.hardConstraints(sa.getResult()));
+
+		return "" + time;
 	}
 
 	public void printTimeTable(TimeTable tt, long time, String name, String result, KTH kth, String config,

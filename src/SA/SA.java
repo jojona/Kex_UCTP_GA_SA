@@ -1,5 +1,6 @@
 package SA;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
@@ -79,6 +80,34 @@ public class SA extends Metaheuristic {
 	// Main algorithm functions
 	//////////////////////////
 	
+	public void testDelta() {
+		solution = initialSolution();
+		ArrayList<Integer> deltaValues = new ArrayList<Integer>();
+		int amount = 0;
+		for(int i = 0; i < 10000; i++) {
+			TimeTable testSolution = neighbourSearch(solution);
+			constraints.fitness(testSolution);
+
+			int delta = testSolution.getFitness() - solution.getFitness(); 
+			
+			if (delta <= 0) {
+				deltaValues.add(delta);	
+				amount++;
+			}
+			
+			solution = testSolution;
+		}
+		
+		int sum = 0;
+		for(int i : deltaValues) {
+			sum += i;
+		}
+		System.out.println("Result: " + sum/amount);
+		System.out.println("Amount: " + amount);
+	}
+	
+	
+	
 	public void run(long startTime) {
 		temperature = INITIAL_TEMPERATURE;
 		iterations = INITIAL_ITERATIONS;
@@ -96,12 +125,17 @@ public class SA extends Metaheuristic {
 				TimeTable testSolution = neighbourSearch(solution);
 				constraints.fitness(testSolution);
 
+				// delta ~= -30
 				int delta = testSolution.getFitness() - solution.getFitness();
 
-				// Interval of delta 0-30
 				//System.out.println(delta + " " + temperature + " " + testSolution.getFitness() + " " + solution.getFitness());
-
-				if (delta > 0 || (Math.exp(delta / temperature) > random.nextFloat())) {
+				
+				if (delta >= 0 || (Math.exp(delta / temperature) > random.nextFloat())) {
+					
+					//if (delta < 0) {
+					//	System.out.println(delta);
+					//}
+					
 					solution = testSolution;
 					if (solution.getFitness() > bestResult.getFitness()) {
 						bestResult = new TimeTable(solution);
@@ -156,14 +190,14 @@ public class SA extends Metaheuristic {
 		RoomTimeTable[] rttList = copy.getRoomTimeTables();
 		
 		if (neighbour_i == 0) {
-			swap(rttList);
+			simpleSearch(rttList);
 			neighbour_i++;
 		} else if (neighbour_i == 1) {
-			simpleSearch(rttList);
+			swap(rttList);
 			neighbour_i++;
 		} else {
 			simpleAndSwap(rttList);
-			neighbour_i = 0;
+			neighbour_i = 1;
 		}
 
 		return copy;
