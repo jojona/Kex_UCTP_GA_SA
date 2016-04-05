@@ -157,6 +157,8 @@ public class SA extends Metaheuristic {
 		SAMEVALUE_LIMIT = p;
 	}
 
+	int i = 0;
+	
 	/**
 	 * Neighbourhood search
 	 * 
@@ -167,10 +169,17 @@ public class SA extends Metaheuristic {
 		// Create a copy
 		TimeTable copy = new TimeTable(tt);
 		RoomTimeTable[] rttList = copy.getRoomTimeTables();
-
-		// swap(rttList);
-		// simpleSearch(rttList);
-		simpleAndSwap(rttList);
+		
+		if (i == 0) {
+			swap(rttList);
+			i++;
+		} else if (i == 1) {
+			simpleSearch(rttList);
+			i++;
+		} else {
+			simpleAndSwap(rttList);
+			i = 0;
+		}
 
 		return copy;
 	}
@@ -191,7 +200,7 @@ public class SA extends Metaheuristic {
 		int day2 = random.nextInt(RoomTimeTable.NUM_DAYS);
 		int room2 = random.nextInt(rttList.length);
 		int event2 = rttList[room2].getEvent(day2, timeslot2);
-		while (event2 == 0) {
+		while (event2 == 0 || event2 == event1) {
 			timeslot2 = random.nextInt(RoomTimeTable.NUM_TIMESLOTS);
 			day2 = random.nextInt(RoomTimeTable.NUM_DAYS);
 			room2 = random.nextInt(rttList.length);

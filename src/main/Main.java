@@ -20,17 +20,17 @@ public class Main {
 		Main.path += Main.file;
 		Main main = new Main();
 
-		main.testGASA();
+		//main.testGASA();
 		// main.testSA();
 
-		for (int i = 0; i < 0; i++) {
-			Main.output = Main.outputName + Main.file + "_" + i + "_";
+		for (int i = 0; i < 9; i++) {
+			Main.output = Main.outputName + Main.file + "_" + i + "_AllNeighbour";
 			System.out.println("Lap: " + i);
-			main.GA();
+			//main.GA();
 
 			main.SA();
 
-			main.GASA();
+			//main.GASA();
 
 		}
 
