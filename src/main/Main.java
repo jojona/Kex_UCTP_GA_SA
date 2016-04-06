@@ -24,11 +24,11 @@ public class Main {
 		Main main = new Main();
 
 		// main.testGASA();
-		main.testSA();
-
+		//main.testSA();
+		main.testGAparams();
 		// main.Runall();
 
-		//main.findSAdelta();
+		// main.findSAdelta();
 	}
 
 	public void findSAdelta() {
@@ -120,8 +120,8 @@ public class Main {
 
 					outputStream.write(
 							"Time: " + runtime + " \tCreatedTime: " + (sa.getResult().getCreatedTime() - startTime)
-									+ " \tFitness " + sa.getResult().getFitness() + " \tGatime: "
-									+ (gatimeTable.getCreatedTime() - startTime) + " \tTimeLimit " + time + "\n");
+							+ " \tFitness " + sa.getResult().getFitness() + " \tGatime: "
+							+ (gatimeTable.getCreatedTime() - startTime) + " \tTimeLimit " + time + "\n");
 					outputStreamM.write(runtime + " " + (sa.getResult().getCreatedTime() - startTime) + " "
 							+ sa.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " "
 							+ time + "\n");
@@ -165,8 +165,8 @@ public class Main {
 
 					outputStream.write(
 							"Time: " + runtime + " \tCreatedTime: " + (sa2.getResult().getCreatedTime() - startTime)
-									+ " \tFitness: " + sa2.getResult().getFitness() + " \tGatime: "
-									+ (gatimeTable.getCreatedTime() - startTime) + " \tStuckLimit: " + stuck + "\n");
+							+ " \tFitness: " + sa2.getResult().getFitness() + " \tGatime: "
+							+ (gatimeTable.getCreatedTime() - startTime) + " \tStuckLimit: " + stuck + "\n");
 					outputStreamM.write(runtime + " " + (sa2.getResult().getCreatedTime() - startTime) + " "
 							+ sa2.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " "
 							+ stuck + "\n");
@@ -211,8 +211,8 @@ public class Main {
 
 					outputStream.write(
 							"Time: " + runtime + " \tCreatedTime: " + (sa3.getResult().getCreatedTime() - startTime)
-									+ " \tFitness: " + sa3.getResult().getFitness() + " \tGatime: "
-									+ (gatimeTable.getCreatedTime() - startTime) + " \tFitnessLimit: " + fit + "\n");
+							+ " \tFitness: " + sa3.getResult().getFitness() + " \tGatime: "
+							+ (gatimeTable.getCreatedTime() - startTime) + " \tFitnessLimit: " + fit + "\n");
 					outputStreamM.write(runtime + " " + (sa3.getResult().getCreatedTime() - startTime) + " "
 							+ sa3.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " "
 							+ fit + "\n");
@@ -233,7 +233,8 @@ public class Main {
 	public void testSA() {
 		Metaheuristic.TIME_LIMIT = 120000;
 		double[] testMy = { -7, -8, -9, -10, -11 };
-		double[] testTemp = { 4.3, 6.5, 10, 13, 21.6 }; // Start at 0.01% 1% 5% 10% 25%
+		double[] testTemp = { 4.3, 6.5, 10, 13, 21.6 }; // Start at 0.01% 1% 5%
+		// 10% 25%
 		int[] testIter = { 10 }; // Max global iterations 20000
 
 		BufferedWriter outputStream;
@@ -250,10 +251,11 @@ public class Main {
 							sa.setSameValueLimit(Integer.MAX_VALUE);
 							sa.setInitialIterations(iter);
 							sa.setInitialTemperature(temp);
-							
+
 							sa.setDesiredFitness(fitnessGoal);
-							
-							//my = Math.log((-30/(Math.log(0.001) * temp)) / 1500); // Note: not in first test
+
+							// my = Math.log((-30/(Math.log(0.001) * temp)) /
+							// 1500); // Note: not in first test
 							sa.setMy(my);
 
 							// Start time
@@ -288,6 +290,89 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void testGAparams() {
+		Metaheuristic.TIME_LIMIT = 120000;
+
+		int[] mutationProb= {40, 50, 60, 70, 80, 90, 100}; //7
+		int[] crossoverProb= {200, 300, 400, 450, 500, 550, 600, 700}; //8
+		int[] popSize= {10, 25, 50, 75, 100, 125, 150}; //7
+		
+		//7*8*7 *2min /60min = 13h
+		
+		//int[] sel_Size= {20, 30, 40}; //3
+
+		BufferedWriter outputStream;
+		BufferedWriter outputStreamM;
+		try {
+			outputStream = new BufferedWriter(new FileWriter("gaTestLarge.txt"));
+			outputStreamM = new BufferedWriter(new FileWriter("gaTestLargeMatlab.txt"));
+			for (int pop : popSize) {
+				for (int crossover : crossoverProb) {
+					for (int mutation : mutationProb) {
+						//for (GA.SELECTION_TYPE selection: GA.SELECTION_TYPE.values()) { //Finns bara roulette
+							//for (int selSize : sel_Size) { //Används aldrig
+								for (int i = 0; i < 9; ++i) {
+									GA ga = new GA();
+									ga.defaultSetup(path);
+
+									ga.setSamevalueLimit(Integer.MAX_VALUE);
+									ga.setMutationProbability(mutation);
+									ga.setCrossoverProbability(crossover);
+									ga.setPopulationSize(pop);
+									//ga.setSelectionSize(selSize);
+									//ga.setSelectionType(selection);
+
+									ga.setDesiredFitness(fitnessGoal);
+
+									// Start time
+									long startTime = System.currentTimeMillis();
+
+									TimeTable bestTimeTable = ga.generateTimeTable(startTime);
+
+									// End time
+									long endTime = System.currentTimeMillis();
+									long time = endTime - startTime;
+
+									bestTimeTable.time = bestTimeTable.getCreatedTime() - startTime;
+
+									outputStream.write(/*"Selection_type:" + selection + */" Pop size:" + pop + /*"\t Sel size:" + selSize + */ 
+											"\t Crossover prob:" + crossover + "\t Mutation prob:" + mutation + 
+											"\t Time:" + time + "\t ResultTime:" + bestTimeTable.time + 
+											"\t Fitness:" + bestTimeTable.getFitness() + "\t Generations:" + ga.numGenerations + "\n");
+
+									outputStreamM.write(/*selection + " " + */ pop + " " + /*selSize + 
+											" " + */ crossover + " " + mutation + 
+											" " + time + " " + bestTimeTable.time + 
+											" " + bestTimeTable.getFitness() + " " + ga.numGenerations + "\n");
+
+									System.out.println(/*"Selection_type:" + selection + */ " Pop size:" + pop + /*"\t Sel size:" + selSize + */ 
+											"\t Crossover prob:" + crossover + "\t Mutation prob:" + mutation + 
+											"\t Time:" + time + "\t ResultTime:" + bestTimeTable.time + 
+											"\t Fitness:" + bestTimeTable.getFitness() + "\t Generations:" + ga.numGenerations);
+
+									outputStream.flush();
+									outputStreamM.flush();
+								}
+							//}
+						//}
+					}
+				}
+			}
+
+			outputStream.close();
+			outputStreamM.close();
+
+		}catch(
+
+				IOException e)
+
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	public String SA() {
