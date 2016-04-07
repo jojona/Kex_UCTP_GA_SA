@@ -1,3 +1,1 @@
-Iter:10	 Temp:4.3	 My:-7.0	 Time:2432	 ResultTime:2432	 Fitness:-4	 GlobIt:1194
-Iter:10	 Temp:4.3	 My:-7.0	 Time:4343	 ResultTime:4343	 Fitness:-4	 GlobIt:2329
-Iter:10	 Temp:4.3	 My:-7.0	 Time:1803	 ResultTime:1802	 Fitness:-4	 GlobIt:1009
+Iter:10	 Temp:10.0	 My:-2.14E-5	 Time:120003	 ResultTime:117530	 Fitness:-16	 GlobIt:45055

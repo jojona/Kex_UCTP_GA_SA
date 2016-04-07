@@ -21,29 +21,30 @@ public class Constraints {
 
 		int studentGroupDoubleBookings = studentGroupDoubleBookings(tt);
 		int lecturerDoubleBookings = lecturerDoubleBookings(tt);
-		int roomCapacityBreaches = roomCapacityBreaches(tt);
 		int roomTypeBreaches = roomTypeBreaches(tt);
 
 		// Hard;
-		int numBreaches = studentGroupDoubleBookings * 2 + lecturerDoubleBookings + roomCapacityBreaches * 4
-				+ roomTypeBreaches * 4;
-		numBreaches *= 10;
+		int numBreaches = studentGroupDoubleBookings * 2 + lecturerDoubleBookings + roomTypeBreaches * 4;
+		numBreaches *= 1000;
 
-		numBreaches += minimumWorkingDays(tt) + sameRoom(tt);
+		numBreaches += softConstraints(tt);
 
 		int fitness = -1 * numBreaches;
 		tt.setFitness(fitness);
 	}
-	
+
 	public int hardConstraints(TimeTable tt) {
 		int studentGroupDoubleBookings = studentGroupDoubleBookings(tt);
 		int lecturerDoubleBookings = lecturerDoubleBookings(tt);
-		int roomCapacityBreaches = roomCapacityBreaches(tt);
 		int roomTypeBreaches = roomTypeBreaches(tt);
 
 		// Hard;
-		int numBreaches = studentGroupDoubleBookings + lecturerDoubleBookings + roomCapacityBreaches + roomTypeBreaches;
+		int numBreaches = studentGroupDoubleBookings + lecturerDoubleBookings + roomTypeBreaches;
 		return numBreaches;
+	}
+
+	public int softConstraints(TimeTable tt) {
+		return 4 * minimumWorkingDays(tt) + 2 * sameRoom(tt) + lastTimeslot(tt) + 4 * roomCapacityBreaches(tt) + 2 * studentOneEventDay(tt);
 	}
 
 	//////////////////////////
@@ -161,35 +162,6 @@ public class Constraints {
 		return numBreaches;
 	}
 
-	// num times a room is too small for the event booked
-	private int roomCapacityBreaches(TimeTable tt) {
-		int numBreaches = 0;
-
-		RoomTimeTable[] rtts = tt.getRoomTimeTables();
-
-		for (RoomTimeTable rtt : rtts) {
-			int roomSize = rtt.getRoom().getCapacity();
-
-			// for each time
-			for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS; timeslot++) {
-
-				for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
-					int eventID = rtt.getEvent(day, timeslot);
-
-					// only look at booked timeslots
-					if (eventID != 0) {
-						int eventSize = kth.getEvent(eventID).getSize();
-						if (roomSize < eventSize) {
-							numBreaches++;
-						}
-					}
-				}
-			}
-		}
-
-		return numBreaches;
-	}
-
 	// num times an event is booked to the wrong room type
 	private int roomTypeBreaches(TimeTable tt) {
 		int numBreaches = 0;
@@ -283,6 +255,83 @@ public class Constraints {
 			}
 			if (rooms.size() > 0) {
 				numBreaches += rooms.size() - 1;
+			}
+		}
+
+		return numBreaches;
+	}
+
+	// A student has a class in the last timeslot of a day
+	private int lastTimeslot(TimeTable tt) {
+		RoomTimeTable[] rtts = tt.getRoomTimeTables();
+		int numBreaches = 0;
+
+		for (RoomTimeTable rtt : rtts) {
+			for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
+				int timeslot = RoomTimeTable.NUM_TIMESLOTS - 1;
+				if (rtt.getEvent(day, timeslot) != 0) {
+					numBreaches++;
+				}
+			}
+		}
+		return numBreaches;
+	}
+
+	// num times a room is too small for the event booked
+	private int roomCapacityBreaches(TimeTable tt) {
+		int numBreaches = 0;
+
+		RoomTimeTable[] rtts = tt.getRoomTimeTables();
+
+		for (RoomTimeTable rtt : rtts) {
+			int roomSize = rtt.getRoom().getCapacity();
+
+			// for each time
+			for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS; timeslot++) {
+
+				for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
+					int eventID = rtt.getEvent(day, timeslot);
+
+					// only look at booked timeslots
+					if (eventID != 0) {
+						int eventSize = kth.getEvent(eventID).getSize();
+						if (roomSize < eventSize) {
+							numBreaches++;
+						}
+					}
+				}
+			}
+		}
+		return numBreaches;
+	}
+
+	private int studentOneEventDay(TimeTable tt) {
+		int numBreaches = 0;
+
+		RoomTimeTable[] rtts = tt.getRoomTimeTables();
+
+		for (StudentGroup sg : kth.getStudentGroups().values()) {
+			for (int day = 0; day < RoomTimeTable.NUM_DAYS; day++) {
+				int dailyEvents = 0;
+				for (int timeslot = 0; timeslot < RoomTimeTable.NUM_TIMESLOTS; timeslot++) {
+					for (RoomTimeTable rtt : rtts) {
+						int eventID = rtt.getEvent(day, timeslot);
+
+						// only look at booked timeslots
+						if (eventID != 0) {
+							Event event = kth.getEvent(eventID);
+							int sgID = event.getStudentGroup().getId();
+
+							// if this bookings is for the current studentgroup
+							if (sgID == sg.getId()) {
+								dailyEvents++;
+							}
+						}
+					}
+					if (dailyEvents == 1) {
+						numBreaches++;
+					}
+				}
 			}
 		}
 

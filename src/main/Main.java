@@ -14,7 +14,7 @@ public class Main {
 
 	static String output;
 
-	public final static boolean debug = false;
+	public final static boolean debug = true;
 
 	private int fitnessGoal = -4;
 	private int runs = 20;
@@ -25,10 +25,10 @@ public class Main {
 
 		// main.testGASA();
 		//main.testSA();
-		main.testGAparams();
-		// main.Runall();
+		//main.testGAparams();
+		main.Runall();
 
-		// main.findSAdelta();
+		//main.findSAdelta();
 	}
 
 	public void findSAdelta() {
@@ -56,11 +56,11 @@ public class Main {
 				Main.output = Main.outputName + Main.file + "_" + i;
 				System.out.println("Lap: " + i);
 
-				// outputStreamGA.write(GA() + "\n");
-				// outputStreamGA.flush();
+				outputStreamGA.write(GA() + "\n");
+				outputStreamGA.flush();
 
-				outputStreamSA.write(SA() + "\n");
-				outputStreamSA.flush();
+				//outputStreamSA.write(SA() + "\n");
+				//outputStreamSA.flush();
 
 				// outputSteamGASA.write(GASA() + "\n");
 				// outputSteamGASA.flush();
@@ -232,9 +232,8 @@ public class Main {
 
 	public void testSA() {
 		Metaheuristic.TIME_LIMIT = 120000;
-		double[] testMy = { -7, -8, -9, -10, -11 };
-		double[] testTemp = { 4.3, 6.5, 10, 13, 21.6 }; // Start at 0.01% 1% 5%
-		// 10% 25%
+		double[] testMy = {-2.14E-5, -3.45E-5, -6E-5};
+		double[] testTemp = {10, 13, 21.6 }; // Start at 5% 10% 25%
 		int[] testIter = { 10 }; // Max global iterations 20000
 
 		BufferedWriter outputStream;
@@ -242,9 +241,11 @@ public class Main {
 		try {
 			outputStream = new BufferedWriter(new FileWriter("saTestLarge.txt"));
 			outputStreamM = new BufferedWriter(new FileWriter("saTestLargeMatlab.txt"));
+			int mindex = 0;
 			for (int iter : testIter) {
 				for (double temp : testTemp) {
-					for (double my : testMy) {
+					//for (double my : testMy) {
+					double my = testMy[mindex];
 						for (int i = 0; i < 9; ++i) {
 							SA sa = new SA();
 							sa.defaultSetup(path);
@@ -279,8 +280,9 @@ public class Main {
 							outputStream.flush();
 							outputStreamM.flush();
 						}
+						mindex++;
 					}
-				}
+//				}
 			}
 
 			outputStream.close();
@@ -376,6 +378,9 @@ public class Main {
 	}
 
 	public String SA() {
+		// TODO remove
+		Metaheuristic.TIME_LIMIT = 300000;
+		
 		SA sa = new SA();
 		sa.defaultSetup(path);
 		sa.setSameValueLimit(Integer.MAX_VALUE);

@@ -44,9 +44,9 @@ public class SA extends Metaheuristic {
 		this.kth = kth;
 		this.constraints = constraints;
 
-		setInitialTemperature(4.3);
+		setInitialTemperature(10);
 		setInitialIterations(10);
-		setMy(-6.83E-4);
+		setMy(-4.29E-6);//setMy(-2.14E-5);//setMy(-6.83E-4);
 		setDesiredFitness(0);
 		setSameValueLimit(Integer.MAX_VALUE);
 	}
@@ -55,9 +55,9 @@ public class SA extends Metaheuristic {
 		loadData(filename);
 		constraints = new Constraints(kth);
 		
-		setInitialTemperature(4.3);
+		setInitialTemperature(6.5);
 		setInitialIterations(10);
-		setMy(-6.83E-4);
+		setMy(-4.03E-6);//setMy(-2.14E-5);//setMy(-6.83E-4);
 		setDesiredFitness(0);
 		setSameValueLimit(Integer.MAX_VALUE);
 	}
@@ -82,26 +82,21 @@ public class SA extends Metaheuristic {
 	
 	public void testDelta() {
 		solution = initialSolution();
-		ArrayList<Integer> deltaValues = new ArrayList<Integer>();
 		int amount = 0;
+		int sum = 0;
 		for(int i = 0; i < 10000; i++) {
 			TimeTable testSolution = neighbourSearch(solution);
 			constraints.fitness(testSolution);
 
-			int delta = testSolution.getFitness() - solution.getFitness(); 
-			
-			if (delta <= 0) {
-				deltaValues.add(delta);	
+			int softdelta = constraints.softConstraints(testSolution) * -1 - constraints.softConstraints(solution) *-1;
+			if (softdelta < 0) {
+				sum += softdelta;
 				amount++;
 			}
 			
 			solution = testSolution;
 		}
 		
-		int sum = 0;
-		for(int i : deltaValues) {
-			sum += i;
-		}
 		System.out.println("Result: " + sum/amount);
 		System.out.println("Amount: " + amount);
 	}
@@ -125,10 +120,16 @@ public class SA extends Metaheuristic {
 				TimeTable testSolution = neighbourSearch(solution);
 				constraints.fitness(testSolution);
 
-				// delta ~= -30
+				// delta ~= -4 (soft constraints)
 				int delta = testSolution.getFitness() - solution.getFitness();
 
-				//System.out.println(delta + " " + temperature + " " + testSolution.getFitness() + " " + solution.getFitness());
+				System.out.print(temperature + " \t" + solution.getFitness() + "  \t" + testSolution.getFitness() + "   \t" + globalIterations + " \t" + delta);
+				if (delta > 0) {
+					System.out.println(" \tPositive");
+				} else {
+					System.out.println();
+				}
+				
 				
 				if (delta >= 0 || (Math.exp(delta / temperature) > random.nextFloat())) {
 					
@@ -142,6 +143,8 @@ public class SA extends Metaheuristic {
 					}
 				}
 			}
+			
+			//System.out.println(bestResult.getFitness());
 
 			// Stopping conditions
 			int best = bestResult.getFitness();
@@ -172,6 +175,7 @@ public class SA extends Metaheuristic {
 	 */
 	private void nextCoolingstep(int iter) {
 		temperature = INITIAL_TEMPERATURE * Math.exp(CONSTANT_MY * iter);
+		//temperature *= 0.97;
 	}
 	
 	//////////////////////////
