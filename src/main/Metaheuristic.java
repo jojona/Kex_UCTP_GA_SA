@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public abstract class Metaheuristic {
-
-	public static long TIME_LIMIT = 90000;
 	
 	protected KTH kth;
 	protected Constraints constraints;

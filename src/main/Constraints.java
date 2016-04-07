@@ -22,12 +22,12 @@ public class Constraints {
 		int studentGroupDoubleBookings = studentGroupDoubleBookings(tt);
 		int lecturerDoubleBookings = lecturerDoubleBookings(tt);
 		int roomTypeBreaches = roomTypeBreaches(tt);
-
+		
 		// Hard;
 		int numBreaches = studentGroupDoubleBookings * 2 + lecturerDoubleBookings + roomTypeBreaches * 4;
-		numBreaches *= 1000;
+		numBreaches *= 1;
 
-		numBreaches += softConstraints(tt);
+		//numBreaches += softConstraints(tt);
 
 		int fitness = -1 * numBreaches;
 		tt.setFitness(fitness);
@@ -95,7 +95,6 @@ public class Constraints {
 					}
 
 					// find the biggest event group
-					int biggestGroup;
 					int biggestGroupSize = 0;
 					int sumGroupSize = 0;
 					for (Map.Entry<Integer, Integer> entry : eventGroupCounts.entrySet()) {
@@ -103,7 +102,6 @@ public class Constraints {
 						sumGroupSize += entry.getValue();
 
 						if (entry.getValue() > biggestGroupSize) {
-							biggestGroup = entry.getKey();
 							biggestGroupSize = entry.getValue();
 						}
 					}

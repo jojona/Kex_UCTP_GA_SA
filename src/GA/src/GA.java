@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 
+import SA.SA;
 import main.Constraints;
 import main.Main;
 import main.Metaheuristic;
@@ -19,44 +20,14 @@ import main.TimeTable;
 public class GA extends Metaheuristic {
 
 	public int numGenerations = 0;
-	
-	public enum SELECTION_TYPE {
-		NORMAL, ROULETTE_WHEEL, TOURNAMENT;
-
-		public static String[] getNames() {
-			GA.SELECTION_TYPE[] states = values();
-			String[] names = new String[states.length];
-			for (int i = 0; i < states.length; i++) {
-				names[i] = states[i].name();
-			}
-			return names;
-		}
-	};
-
-	public enum MUTATION_TYPE {
-		NORMAL;
-
-		public static String[] getNames() {
-			GA.MUTATION_TYPE[] states = values();
-			String[] names = new String[states.length];
-			for (int i = 0; i < states.length; i++) {
-				names[i] = states[i].name();
-			}
-			return names;
-		}
-	};
 
 	// algorithm parameters
 	private int DESIRED_FITNESS;
 	private int SAMEVALUE_LIMIT;
-	
+	private int TIME_LIMIT;
+
 	private int MAX_POPULATION_SIZE;
 	private int MUTATION_PROBABILITY; // compared with 1000
-	private int CROSSOVER_PROBABILITY; // compared with 1000
-	private int SELECTION_SIZE;
-	private int TOURNAMENT_POOL_SIZE = 5;
-	private SELECTION_TYPE selectionType = SELECTION_TYPE.NORMAL;
-	private MUTATION_TYPE mutationType = MUTATION_TYPE.NORMAL;
 
 	private Population population;
 
@@ -67,28 +38,20 @@ public class GA extends Metaheuristic {
 	public void defaultSetup(String filename) {
 		loadData(filename);
 		constraints = new Constraints(kth);
-		
+
 		// setup the genetic algorithm
 		setDesiredFitness(0);
 		setSamevalueLimit(Integer.MAX_VALUE);
+		setTimeLimit(90 * 1000);
+
 		setMutationProbability(60);
-		setCrossoverProbability(500);
 		setPopulationSize(100);
-		setSelectionSize(30);
-		setSelectionType(GA.SELECTION_TYPE.NORMAL); // TODO roulette_wheel?
-		setMutationType(GA.MUTATION_TYPE.NORMAL);
 	}
 
 	/*
 	 * Returns a schedule based on the given constraints
 	 */
 	public TimeTable generateTimeTable(long startTime) {
-		// run until the fitness is high enough
-		// high enough should at least mean that
-		// all hard constraints are solved
-		// adjust for the number of soft constraints to be solved too
-		// use another stop criteria too, in order to not run forever?
-
 		// create the initial random population
 		createRandomPopulation();
 		ListIterator<TimeTable> it = population.listIterator();
@@ -102,36 +65,43 @@ public class GA extends Metaheuristic {
 		boolean stop = false;
 		int oldBestFitness = Integer.MIN_VALUE;
 		int newBestValueGeneration = 0;
-		
+
 		numGenerations = 1;
 		while (!stop) {
 			Population children = breed(population, MAX_POPULATION_SIZE);
 			population = selection(population, children);
 
-			// sort the population by their fitness
-			// not needed
+			// sort the population by their fitness (not needed?)
 			population.sortIndividuals();
 			numGenerations++;
 
 			// Stopping conditions
-			if ((System.currentTimeMillis() - startTime > Metaheuristic.TIME_LIMIT) 
-					|| (population.getTopIndividual().getFitness() > DESIRED_FITNESS)) {
-					stop = true;
+			if ((System.currentTimeMillis() - startTime > TIME_LIMIT)
+					|| (population.getTopIndividual().getFitness() >= DESIRED_FITNESS)) {
+				stop = true;
 			}
 			int bestFitness = population.getTopIndividual().getFitness();
 			if (bestFitness == oldBestFitness) {
 				if (numGenerations - newBestValueGeneration > SAMEVALUE_LIMIT) {
-					stop = true;						
+					stop = true;
 				}
+				
+				if (numGenerations - newBestValueGeneration > 5 && numGenerations > 100) {
+					System.out.println("A");
+				}
+				
+				
 			} else {
-				newBestValueGeneration = numGenerations;
-				population.getTopIndividual().setCreatedTime();
-				oldBestFitness = bestFitness;
+				if (bestFitness > oldBestFitness) {
+					population.getTopIndividual().setCreatedTime();
+					newBestValueGeneration = numGenerations;
+					oldBestFitness = bestFitness;
+				}
 			}
-			
+
 			if (Main.debug)
-			System.out.println(
-					"#GENERATIONS: " + numGenerations + " BEST FITNESS: " + population.getTopIndividual().getFitness());
+				System.out.println("#GENERATIONS: " + numGenerations + " BEST FITNESS: "
+						+ population.getTopIndividual().getFitness());
 		}
 
 		return population.getTopIndividual();
@@ -144,6 +114,7 @@ public class GA extends Metaheuristic {
 	private Population createRandomPopulation() {
 		population = new Population();
 		population.createRandomIndividuals(MAX_POPULATION_SIZE, kth);
+		// population.createGoodInviduals(MAX_POPULATION_SIZE, kth);
 		return population;
 	}
 
@@ -217,6 +188,7 @@ public class GA extends Metaheuristic {
 			TimeTable child = crossoverWithPoint(t1, t2);
 			mutate(child);
 			repairTimeTable(child);
+			// improveTimeTable(child);
 			constraints.fitness(child);
 
 			children.addIndividual(child);
@@ -401,41 +373,29 @@ public class GA extends Metaheuristic {
 			}
 		}
 	}
-	
+
 	//////////////////////////
 	// Get and set methods
-	////////////////////////// 
+	//////////////////////////
 
 	public void setSamevalueLimit(int p) {
 		SAMEVALUE_LIMIT = p;
 	}
-	
+
 	public void setDesiredFitness(int p) {
 		DESIRED_FITNESS = p;
 	}
 	
+	public void setTimeLimit(int t) {
+		TIME_LIMIT = t;
+	}
+
 	public void setMutationProbability(int p) {
 		MUTATION_PROBABILITY = p;
 	}
 
-	public void setCrossoverProbability(int p) {
-		CROSSOVER_PROBABILITY = p;
-	}
-
 	public void setPopulationSize(int size) {
 		MAX_POPULATION_SIZE = size;
-	}
-
-	public void setSelectionSize(int size) {
-		SELECTION_SIZE = size;
-	}
-
-	public void setMutationType(MUTATION_TYPE i) {
-		mutationType = i;
-	}
-
-	public void setSelectionType(SELECTION_TYPE i) {
-		selectionType = i;
 	}
 
 	@Override
@@ -443,14 +403,23 @@ public class GA extends Metaheuristic {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Desired fitness: " + DESIRED_FITNESS + "\n");
 		sb.append("Stuck limit: " + SAMEVALUE_LIMIT + "\n");
-		
+
 		sb.append("Population size: " + MAX_POPULATION_SIZE + "\n");
-		sb.append("Selection size: " + SELECTION_SIZE + "\n");
-		sb.append("Mutation type: " + mutationType + "\n");
 		sb.append("P(Mutation) = " + ((double) MUTATION_PROBABILITY / 1000.0d * 100) + "%" + "\n");
-		sb.append("Selection type: " + selectionType);
-		sb.append("P(Crossover) = " + ((double) CROSSOVER_PROBABILITY / 1000.0d * 100) + "%" + "\n");
-		
+		sb.append("Time limit: " + TIME_LIMIT + "\n");
+
 		return sb.toString();
+	}
+
+	private void improveTimeTable(TimeTable tt) {
+		SA sa = new SA();
+		sa.defaultSetupGASA(kth, constraints);
+		sa.setSolution(tt);
+		sa.setDesiredFitness(-1000);
+
+		sa.run(System.currentTimeMillis());
+		System.out.println("Improved");
+		tt = sa.getResult();
+
 	}
 }

@@ -7,6 +7,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 
+import SA.SA;
+import main.Constraints;
 import main.Event;
 import main.KTH;
 import main.Room;
@@ -21,7 +23,6 @@ public class Population {
     private int roomId;
     private int day;
     private int timeSlot;
-    private boolean available = true;
     public TimeSlot(int roomId, int day, int timeSlot) {
       this.roomId = roomId;
       this.day = day;
@@ -40,9 +41,29 @@ public class Population {
     Map<Integer, Room> rooms = kth.getRooms();
     int numRooms = kth.getRooms().size();
     for(int i = 0; i < numIndividuals; i++) {
-      TimeTable tt = generateRandomInvidual(kth, rooms, numRooms);
-      individuals.add(tt);
+    	TimeTable tt = generateRandomInvidual(kth, rooms, numRooms);
+    	individuals.add(tt);
     }
+  }
+  
+  public void createGoodInviduals(int numIndividuals, KTH kth) {
+	  Map<Integer, Room> rooms = kth.getRooms();
+	    int numRooms = kth.getRooms().size();
+	    for(int i = 0; i < numIndividuals; i++) {
+	    	TimeTable tt = createGoodInvidual(kth, rooms, numRooms);
+	    	individuals.add(tt);
+	    	System.out.println("Another one " + i);
+	    }
+  }
+  
+  public TimeTable createGoodInvidual(KTH kth, Map<Integer, Room> rooms, int numRooms) {
+	  SA sa = new SA();
+	  sa.defaultSetupGASA(kth, new Constraints(kth));
+	  sa.setSolution(generateRandomInvidual(kth, rooms, numRooms));
+	  sa.setDesiredFitness(-1000);
+	  sa.setTimeLimit(3000);
+	  sa.run(System.currentTimeMillis());
+	  return sa.getResult();
   }
 
   public TimeTable generateRandomInvidual(KTH kth, Map<Integer, Room> rooms, int numRooms)  {
@@ -62,11 +83,6 @@ public class Population {
         RoomTimeTable rtt = new RoomTimeTable(room);
         tt.putRoomTimeTable(roomId, rtt);
       }
-
-      // index variables
-      int rttId = 0;
-      int day = 0;
-      int timeSlot = 0;
 
       // assign all event to any randomly selected available timeslot
       Random rand = new Random(System.currentTimeMillis());

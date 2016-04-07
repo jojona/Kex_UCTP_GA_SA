@@ -1,6 +1,5 @@
 package SA;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
@@ -17,11 +16,13 @@ public class SA extends Metaheuristic {
 
 	private Random random;
 
+	private int TIME_LIMIT;
+	private int SAMEVALUE_LIMIT;
+	private int DESIRED_FITNESS;
+
 	private double INITIAL_TEMPERATURE;
 	private double CONSTANT_MY;
 	private int INITIAL_ITERATIONS;
-	private int SAMEVALUE_LIMIT;
-	private int DESIRED_FITNESS;
 
 	private int iterations;
 	private double temperature;
@@ -47,8 +48,10 @@ public class SA extends Metaheuristic {
 		setInitialTemperature(10);
 		setInitialIterations(10);
 		setMy(-4.29E-6);//setMy(-2.14E-5);//setMy(-6.83E-4);
+		
 		setDesiredFitness(0);
 		setSameValueLimit(Integer.MAX_VALUE);
+		setTimeLimit(90 * 1000);
 	}
 
 	public void defaultSetup(String filename) {
@@ -58,8 +61,10 @@ public class SA extends Metaheuristic {
 		setInitialTemperature(6.5);
 		setInitialIterations(10);
 		setMy(-4.03E-6);//setMy(-2.14E-5);//setMy(-6.83E-4);
+		
 		setDesiredFitness(0);
 		setSameValueLimit(Integer.MAX_VALUE);
+		setTimeLimit(9 * 1000);
 	}
 	
 	/**
@@ -123,12 +128,14 @@ public class SA extends Metaheuristic {
 				// delta ~= -4 (soft constraints)
 				int delta = testSolution.getFitness() - solution.getFitness();
 
+				/*
 				System.out.print(temperature + " \t" + solution.getFitness() + "  \t" + testSolution.getFitness() + "   \t" + globalIterations + " \t" + delta);
 				if (delta > 0) {
 					System.out.println(" \tPositive");
 				} else {
 					System.out.println();
 				}
+				//*/
 				
 				
 				if (delta >= 0 || (Math.exp(delta / temperature) > random.nextFloat())) {
@@ -157,7 +164,7 @@ public class SA extends Metaheuristic {
 				oldBestFitness = best;
 			}
 			
-			if (bestResult.getFitness() >= DESIRED_FITNESS || System.currentTimeMillis() - startTime > Metaheuristic.TIME_LIMIT) {
+			if (bestResult.getFitness() >= DESIRED_FITNESS || System.currentTimeMillis() - startTime > TIME_LIMIT) {
 				stop = true;
 			}
 			
@@ -339,7 +346,7 @@ public class SA extends Metaheuristic {
 		sb.append("My value: " + CONSTANT_MY + "\n");
 		sb.append("Stuck limit: " + SAMEVALUE_LIMIT + "\n");
 		sb.append("Desired fitness: " + DESIRED_FITNESS + "\n");
-		
+		sb.append("Time limit: " + TIME_LIMIT + "\n");
 		return sb.toString();
 	}
 	
@@ -385,6 +392,10 @@ public class SA extends Metaheuristic {
 	 */
 	public void setSameValueLimit(int p) {
 		SAMEVALUE_LIMIT = p;
+	}
+	
+	public void setTimeLimit(int t) {
+		TIME_LIMIT = t;
 	}
 
 }

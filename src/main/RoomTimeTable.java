@@ -1,7 +1,7 @@
 package main;
 public class RoomTimeTable {
 
-  public static final int NUM_DAYS = 4;
+  public static final int NUM_DAYS = 5;
   public static final int NUM_TIMESLOTS = 4;
 
   // matrix of timeslots
