@@ -30,9 +30,11 @@ public class GA extends Metaheuristic {
 	private int MUTATION_PROBABILITY; // compared with 1000
 
 	private Population population;
-
+	Random rand;
+	
 	public GA() {
 		super();
+		rand = new Random();
 	}
 
 	public void defaultSetup(String filename) {
@@ -85,12 +87,6 @@ public class GA extends Metaheuristic {
 				if (numGenerations - newBestValueGeneration > SAMEVALUE_LIMIT) {
 					stop = true;
 				}
-				
-				if (numGenerations - newBestValueGeneration > 5 && numGenerations > 100) {
-					System.out.println("A");
-				}
-				
-				
 			} else {
 				if (bestFitness > oldBestFitness) {
 					population.getTopIndividual().setCreatedTime();
@@ -127,7 +123,7 @@ public class GA extends Metaheuristic {
 	// Uses another implementation of roulette selection of parents
 	private Population breed(Population population, int N) {
 		Population children = new Population();
-
+		
 		// calculate the pseudofitness of each individual
 		// used in the roulette selection
 		int[] pseudoFitness = new int[population.size()];
@@ -158,7 +154,7 @@ public class GA extends Metaheuristic {
 			}
 		}
 
-		Random rand = new Random(System.currentTimeMillis());
+	
 
 		while (children.size() < N) {
 			if (alias.length == 0) {
@@ -240,7 +236,7 @@ public class GA extends Metaheuristic {
 
 		int interval = kth.getNumRooms() * RoomTimeTable.NUM_TIMESLOTS * RoomTimeTable.NUM_DAYS;
 
-		int point = new Random(System.currentTimeMillis()).nextInt(interval);
+		int point = rand.nextInt(interval);
 
 		RoomTimeTable[] rtts1 = t1.getRoomTimeTables();
 		RoomTimeTable[] rtts2 = t2.getRoomTimeTables();
@@ -352,7 +348,6 @@ public class GA extends Metaheuristic {
 	//////////////////////////
 
 	private void mutate(TimeTable tt) {
-		Random rand = new Random(System.currentTimeMillis());
 		RoomTimeTable[] rtts = tt.getRoomTimeTables();
 
 		for (int i = 0; i < kth.getNumRooms(); i++) {

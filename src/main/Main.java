@@ -9,7 +9,7 @@ import SA.SA;
 
 public class Main {
 	static String path = "src/GA/input/";
-	static String file = "kth_S";
+	static String file = "kth_M";
 	static String outputName = "output/";
 
 	static String output;
@@ -59,11 +59,11 @@ public class Main {
 				outputStreamGA.write(GA() + "\n");
 				outputStreamGA.flush();
 
-				// outputStreamSA.write(SA() + "\n");
-				// outputStreamSA.flush();
+				outputStreamSA.write(SA() + "\n");
+				outputStreamSA.flush();
 
-				// outputSteamGASA.write(GASA() + "\n");
-				// outputSteamGASA.flush();
+				outputSteamGASA.write(GASA() + "\n");
+				outputSteamGASA.flush();
 
 			}
 			outputStreamSA.close();
@@ -405,7 +405,6 @@ public class Main {
 	public String GA() {
 		GA ga = new GA();
 		ga.defaultSetup(path);
-		ga.setSamevalueLimit(300);//ga.setSamevalueLimit(Integer.MAX_VALUE);
 		ga.setDesiredFitness(fitnessGoal);
 		// Start time
 		long startTime = System.currentTimeMillis();

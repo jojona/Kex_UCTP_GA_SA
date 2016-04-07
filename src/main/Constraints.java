@@ -25,9 +25,9 @@ public class Constraints {
 		
 		// Hard;
 		int numBreaches = studentGroupDoubleBookings * 2 + lecturerDoubleBookings + roomTypeBreaches * 4;
-		numBreaches *= 1;
+		numBreaches *= 1000;
 
-		//numBreaches += softConstraints(tt);
+		numBreaches += softConstraints(tt);
 
 		int fitness = -1 * numBreaches;
 		tt.setFitness(fitness);

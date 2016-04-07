@@ -64,7 +64,7 @@ public class SA extends Metaheuristic {
 		
 		setDesiredFitness(0);
 		setSameValueLimit(Integer.MAX_VALUE);
-		setTimeLimit(9 * 1000);
+		setTimeLimit(90 * 1000);
 	}
 	
 	/**
