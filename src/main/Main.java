@@ -19,7 +19,7 @@ public class Main {
 	private int runs = 9;
 	private int fitnessGoal = 0;
 	private int timeGoal = 120 * 1000;
-	
+
 	// TODO list before running tests
 	// Check input file
 	// Check fitness goal
@@ -34,17 +34,23 @@ public class Main {
 		Main.path += Main.file;
 		Main main = new Main();
 
-		main.testGASA();
+		// main.findSAdelta();
+
+		// Need to run delta test before and fix delta value DONE
 		main.testSA();
 		main.testGA();
+
+		// Need to run above tests before and fix parameters
+		// main.testGASA();
+
+		// Need to run above tests before and fix parameters
 		// main.Runall();
 
-		// main.findSAdelta();
 	}
 
 	public void findSAdelta() {
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < runs; i++) {
 
 			SA sa = new SA();
 			sa.defaultSetup(path);
@@ -241,8 +247,8 @@ public class Main {
 	}
 
 	public void testSA() {
-		double[] startProb = {0.001, 0.01, 0.05, 0.1};
-		double[] endProb = {0.01, 0.001, 1E-4};
+		double[] startProb = { 0.001, 0.01, 0.05, 0.1 };
+		double[] endProb = { 0.01, 0.001, 1E-4 };
 
 		int iter = 10;
 
@@ -274,20 +280,19 @@ public class Main {
 						long endTime = System.currentTimeMillis();
 						long time = endTime - startTime;
 						sa.getResult().time = sa.getResult().getCreatedTime() - startTime;
-						
+
 						double temp = sa.getT0();
 						double my = sa.getMy();
-						outputStream.write("Iter:" + iter + "\t startProb:" +sProb + "\t endProb:" + eProb 
-								+ "\t Temp:" + temp + "\t My:" + my + "\t Time:" + time
-								+ "\t ResultTime:" + sa.getResult().time + "\t Fitness:" + sa.getResult().getFitness()
-								+ "\t GlobIt:" + sa.globalIterations + "\n");
-						outputStreamM.write(iter + " " + sProb + " " + eProb + " " 
-								+ temp + " " + my + " " + time + " " + sa.getResult().time + " "
-								+ sa.getResult().getFitness() + " " + sa.globalIterations + "\n");
-						System.out.println("Iter:" + iter + "\t startProb:" +sProb + "\t endProb:" + eProb  
-								+ "\t Temp:" + temp + "\t My:" + my + "\t Time:" + time
-								+ "\t ResultTime:" + sa.getResult().time + "\t Fitness:" + sa.getResult().getFitness()
-								+ "\t GlobIt:" + sa.globalIterations);
+						outputStream.write("Iter:" + iter + "\t startProb:" + sProb + "\t endProb:" + eProb + "\t Temp:"
+								+ temp + "\t My:" + my + "\t Time:" + time + "\t ResultTime:" + sa.getResult().time
+								+ "\t Fitness:" + sa.getResult().getFitness() + "\t GlobIt:" + sa.globalIterations
+								+ "\n");
+						outputStreamM.write(iter + " " + sProb + " " + eProb + " " + temp + " " + my + " " + time + " "
+								+ sa.getResult().time + " " + sa.getResult().getFitness() + " " + sa.globalIterations
+								+ "\n");
+						System.out.println("Iter:" + iter + "\t startProb:" + sProb + "\t endProb:" + eProb + "\t Temp:"
+								+ temp + "\t My:" + my + "\t Time:" + time + "\t ResultTime:" + sa.getResult().time
+								+ "\t Fitness:" + sa.getResult().getFitness() + "\t GlobIt:" + sa.globalIterations);
 						outputStream.flush();
 						outputStreamM.flush();
 					}

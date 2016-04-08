@@ -22,7 +22,7 @@ public class Constraints {
 		int studentGroupDoubleBookings = studentGroupDoubleBookings(tt);
 		int lecturerDoubleBookings = lecturerDoubleBookings(tt);
 		int roomTypeBreaches = roomTypeBreaches(tt);
-		
+
 		// Hard;
 		int numBreaches = studentGroupDoubleBookings * 2 + lecturerDoubleBookings + roomTypeBreaches * 4;
 		numBreaches *= 1000;
@@ -44,7 +44,8 @@ public class Constraints {
 	}
 
 	public int softConstraints(TimeTable tt) {
-		return 4 * minimumWorkingDays(tt) + 2 * sameRoom(tt) + lastTimeslot(tt) + 4 * roomCapacityBreaches(tt) + 2 * studentOneEventDay(tt);
+		return 4 * minimumWorkingDays(tt) + 2 * sameRoom(tt) + lastTimeslot(tt) + 4 * roomCapacityBreaches(tt)
+				+ 2 * studentOneEventDay(tt);
 	}
 
 	//////////////////////////

@@ -22,8 +22,9 @@ public class GA extends Metaheuristic {
 	public int numGenerations = 0;
 
 	// algorithm parameters
-	private int SAMEVALUE_LIMIT = Integer.MAX_VALUE; 
-	private int DESIRED_FITNESS = Integer.MAX_VALUE; // Always set before running
+	private int SAMEVALUE_LIMIT = Integer.MAX_VALUE;
+	private int DESIRED_FITNESS = Integer.MAX_VALUE; // Always set before
+														// running
 	private int TIME_LIMIT = 0; // Always set before running
 
 	private int MAX_POPULATION_SIZE;
@@ -31,7 +32,7 @@ public class GA extends Metaheuristic {
 
 	private Population population;
 	Random rand;
-	
+
 	public GA() {
 		super();
 		rand = new Random();
@@ -42,8 +43,9 @@ public class GA extends Metaheuristic {
 		constraints = new Constraints(kth);
 
 		// setup the genetic algorithm
-		setMutationProbability(60);
-		setPopulationSize(100);
+		// TODO
+		setMutationProbability(0); // 60
+		setPopulationSize(0); // 100
 	}
 
 	/*
@@ -119,7 +121,7 @@ public class GA extends Metaheuristic {
 	// Uses another implementation of roulette selection of parents
 	private Population breed(Population population, int N) {
 		Population children = new Population();
-		
+
 		// calculate the pseudofitness of each individual
 		// used in the roulette selection
 		int[] pseudoFitness = new int[population.size()];
@@ -150,8 +152,6 @@ public class GA extends Metaheuristic {
 			}
 		}
 
-	
-
 		while (children.size() < N) {
 			if (alias.length == 0) {
 				break;
@@ -180,7 +180,7 @@ public class GA extends Metaheuristic {
 			TimeTable child = crossoverWithPoint(t1, t2);
 			mutate(child);
 			repairTimeTable(child);
-			// improveTimeTable(child);
+			// improveTimeTable(child); // Ineffective
 			constraints.fitness(child);
 
 			children.addIndividual(child);
@@ -376,7 +376,7 @@ public class GA extends Metaheuristic {
 	public void setDesiredFitness(int p) {
 		DESIRED_FITNESS = p;
 	}
-	
+
 	public void setTimeLimit(int t) {
 		TIME_LIMIT = t;
 	}

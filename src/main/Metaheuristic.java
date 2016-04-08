@@ -8,17 +8,17 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public abstract class Metaheuristic {
-	
+
 	protected KTH kth;
 	protected Constraints constraints;
-	
+
 	public Metaheuristic() {
 	}
-	
+
 	public int hardConstraints(TimeTable tt) {
 		return constraints.hardConstraints(tt);
 	}
-	
+
 	public abstract String getConf();
 
 	//////////////////////////

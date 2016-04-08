@@ -18,9 +18,10 @@ public class SA extends Metaheuristic {
 
 	public double avgDelta = -4.8;
 	public int iterationGoal = 20000;
-	
+
 	private int SAMEVALUE_LIMIT = Integer.MAX_VALUE;
-	private int DESIRED_FITNESS = Integer.MAX_VALUE; // Always set before running
+	private int DESIRED_FITNESS = Integer.MAX_VALUE; // Always set before
+														// running
 	private int TIME_LIMIT = 0; // Always set before running
 
 	private int INITIAL_ITERATIONS;
@@ -39,7 +40,7 @@ public class SA extends Metaheuristic {
 		super();
 		random = new Random();
 	}
-	
+
 	//////////////////////////
 	// Setup functions
 	//////////////////////////
@@ -51,19 +52,19 @@ public class SA extends Metaheuristic {
 		// TODO
 		setInitialTemperature(0);
 		setInitialIterations(0);
-		setMy(0);	
+		setMy(0);
 	}
 
 	public void defaultSetup(String filename) {
 		loadData(filename);
 		constraints = new Constraints(kth);
-		
+
 		// TODO
 		setInitialTemperature(0);
 		setInitialIterations(0);
-		setMy(0);	
+		setMy(0);
 	}
-	
+
 	/**
 	 * Calculate initial solution
 	 * 
@@ -81,34 +82,32 @@ public class SA extends Metaheuristic {
 	//////////////////////////
 	// Main algorithm functions
 	//////////////////////////
-	
+
 	public void testDelta() {
 		solution = initialSolution();
 		int amount = 0;
 		int sum = 0;
-		for(int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			TimeTable testSolution = neighbourSearch(solution);
 			constraints.fitness(testSolution);
 
-			int softdelta = constraints.softConstraints(testSolution) * -1 - constraints.softConstraints(solution) *-1;
+			int softdelta = constraints.softConstraints(testSolution) * -1 - constraints.softConstraints(solution) * -1;
 			if (softdelta < 0) {
 				sum += softdelta;
 				amount++;
 			}
-			
+
 			solution = testSolution;
 		}
-		
-		System.out.println("Result: " + 1.0*sum/amount);
+
+		System.out.println("Result: " + 1.0 * sum / amount);
 		System.out.println("Amount: " + amount);
 	}
-	
-	
-	
+
 	public void run(long startTime) {
 		temperature = INITIAL_TEMPERATURE;
 		iterations = INITIAL_ITERATIONS;
-		
+
 		if (solution == null) {
 			solution = initialSolution();
 		}
@@ -126,66 +125,64 @@ public class SA extends Metaheuristic {
 				int delta = testSolution.getFitness() - solution.getFitness();
 
 				/*
-				System.out.print(temperature + " \t" + solution.getFitness() + "  \t" + testSolution.getFitness() + "   \t" + globalIterations + " \t" + delta);
-				if (delta > 0) {
-					System.out.println(" \tPositive");
-				} else {
-					System.out.println();
-				}
-				//*/
-				
-				
+				 * System.out.print(temperature + " \t" + solution.getFitness()
+				 * + "  \t" + testSolution.getFitness() + "   \t" +
+				 * globalIterations + " \t" + delta); if (delta > 0) {
+				 * System.out.println(" \tPositive"); } else {
+				 * System.out.println(); } //
+				 */
+
 				if (delta >= 0 || (Math.exp(delta / temperature) > random.nextFloat())) {
-					
-					//if (delta < 0) {
-					//	System.out.println(delta);
-					//}
-					
+
+					// if (delta < 0) {
+					// System.out.println(delta);
+					// }
+
 					solution = testSolution;
 					if (solution.getFitness() > bestResult.getFitness()) {
 						bestResult = new TimeTable(solution);
 					}
 				}
 			}
-			
-			//System.out.println(bestResult.getFitness());
+
+			// System.out.println(bestResult.getFitness());
 
 			// Stopping conditions
 			int best = bestResult.getFitness();
 			if (best == oldBestFitness) {
 				if (globalIterations - newBestValueIteration > SAMEVALUE_LIMIT) {
 					stop = true;
-				} 
+				}
 			} else {
 				newBestValueIteration = globalIterations;
 				oldBestFitness = best;
 			}
-			
+
 			if (bestResult.getFitness() >= DESIRED_FITNESS || System.currentTimeMillis() - startTime > TIME_LIMIT) {
 				stop = true;
 			}
-			
+
 			if (Main.debug)
 				System.out.println(
 						"#GlobalIteration: " + globalIterations + " CURRENT FITNESS: " + bestResult.getFitness());
-			
+
 			nextCoolingstep(globalIterations);
 			globalIterations++;
 		}
 	}
-	
+
 	/**
 	 * Cooling schedule
 	 */
 	private void nextCoolingstep(int iter) {
 		temperature = INITIAL_TEMPERATURE * Math.exp(CONSTANT_MY * iter);
-		//temperature *= 0.97;
+		// temperature *= 0.97;
 	}
-	
+
 	//////////////////////////
 	// Neighbourhood search methods
 	//////////////////////////
-	
+
 	/**
 	 * Neighbourhood search
 	 * 
@@ -196,7 +193,7 @@ public class SA extends Metaheuristic {
 		// Create a copy
 		TimeTable copy = new TimeTable(tt);
 		RoomTimeTable[] rttList = copy.getRoomTimeTables();
-		
+
 		if (neighbour_i == 0) {
 			simpleSearch(rttList);
 			neighbour_i++;
@@ -328,7 +325,7 @@ public class SA extends Metaheuristic {
 
 	//////////////////////////
 	// Get and set methods
-	////////////////////////// 
+	//////////////////////////
 
 	public TimeTable getResult() {
 		return bestResult;
@@ -337,7 +334,7 @@ public class SA extends Metaheuristic {
 	@Override
 	public String getConf() {
 		StringBuilder sb = new StringBuilder();
-		
+
 		sb.append("Initialtemperature: " + INITIAL_TEMPERATURE + "\n");
 		sb.append("InitialIterations: " + INITIAL_ITERATIONS + "\n");
 		sb.append("My value: " + CONSTANT_MY + "\n");
@@ -346,17 +343,18 @@ public class SA extends Metaheuristic {
 		sb.append("Time limit: " + TIME_LIMIT + "\n");
 		return sb.toString();
 	}
-	
-	public double getT0(){
+
+	public double getT0() {
 		return INITIAL_TEMPERATURE;
 	}
-	
-	public double getMy(){
+
+	public double getMy() {
 		return CONSTANT_MY;
 	}
-	
+
 	/**
 	 * Set initial solution, fed from previous algorithm
+	 * 
 	 * @param tt
 	 */
 	public void setSolution(TimeTable tt) {
@@ -377,28 +375,28 @@ public class SA extends Metaheuristic {
 	public void setInitialTemperature(double p) {
 		INITIAL_TEMPERATURE = p;
 	}
-	
+
 	/**
 	 * Set my value
 	 */
-	public void setMy(double p){
+	public void setMy(double p) {
 		CONSTANT_MY = p;
 	}
-	
+
 	/**
 	 * Set fitness stopping condition
 	 */
 	public void setDesiredFitness(int p) {
 		DESIRED_FITNESS = p;
 	}
-	
+
 	/**
 	 * Set stuck stopping condition
 	 */
 	public void setSameValueLimit(int p) {
 		SAMEVALUE_LIMIT = p;
 	}
-	
+
 	public void setTimeLimit(int t) {
 		TIME_LIMIT = t;
 	}
