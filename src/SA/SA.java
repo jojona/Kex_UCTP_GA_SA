@@ -16,6 +16,9 @@ public class SA extends Metaheuristic {
 
 	private Random random;
 
+	public double avgDelta = -4.8;
+	public int iterationGoal = 20000;
+	
 	private int TIME_LIMIT;
 	private int SAMEVALUE_LIMIT;
 	private int DESIRED_FITNESS;
@@ -102,7 +105,7 @@ public class SA extends Metaheuristic {
 			solution = testSolution;
 		}
 		
-		System.out.println("Result: " + sum/amount);
+		System.out.println("Result: " + 1.0*sum/amount);
 		System.out.println("Amount: " + amount);
 	}
 	
@@ -348,6 +351,14 @@ public class SA extends Metaheuristic {
 		sb.append("Desired fitness: " + DESIRED_FITNESS + "\n");
 		sb.append("Time limit: " + TIME_LIMIT + "\n");
 		return sb.toString();
+	}
+	
+	public double getT0(){
+		return INITIAL_TEMPERATURE;
+	}
+	
+	public double getMy(){
+		return CONSTANT_MY;
 	}
 	
 	/**

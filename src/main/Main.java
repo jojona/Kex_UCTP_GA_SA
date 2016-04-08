@@ -9,7 +9,7 @@ import SA.SA;
 
 public class Main {
 	static String path = "src/GA/input/";
-	static String file = "kth_M";
+	static String file = "kth_L";
 	static String outputName = "output/";
 
 	static String output;
@@ -24,11 +24,11 @@ public class Main {
 		Main main = new Main();
 
 		// main.testGASA();
-		// main.testSA();
+		 main.testSA();
 		// main.testGAparams();
-		main.Runall();
+		//main.Runall();
 
-		// main.findSAdelta();
+		//main.findSAdelta();
 	}
 
 	public void findSAdelta() {
@@ -231,33 +231,35 @@ public class Main {
 	}
 
 	public void testSA() {
-		double[] testMy = { -2.14E-5, -3.45E-5, -6E-5 };
-		double[] testTemp = { 10, 13, 21.6 }; // Start at 5% 10% 25%
-		int[] testIter = { 10 }; // Max global iterations 20000
-
+		//double[] testMy = { -2.14E-5, -3.45E-5, -6E-5 };
+		//double[] testTemp = { 10, 13, 21.6 }; // Start at 5% 10% 25%
+		//int[] testIter = { 10 }; // Max global iterations 20000
+		
+		double[] startProb = {0.1, 1, 5, 10};
+		double[] endProb = {0.001, 0.05, 0.1, 1};
+		
+		int iter = 10;
+		
 		BufferedWriter outputStream;
 		BufferedWriter outputStreamM;
 		try {
 			outputStream = new BufferedWriter(new FileWriter("saTestLarge.txt"));
 			outputStreamM = new BufferedWriter(new FileWriter("saTestLargeMatlab.txt"));
-			int mindex = 0;
-			for (int iter : testIter) {
-				for (double temp : testTemp) {
+			for (double sProb : startProb) {
+				for (double eProb: endProb) {
+					if(eProb >= sProb){
+						continue;
+					}
 					// for (double my : testMy) {
-					double my = testMy[mindex];
+					//double my = testMy[mindex];
 					for (int i = 0; i < 9; ++i) {
 						SA sa = new SA();
 						sa.defaultSetup(path);
-						sa.setSameValueLimit(Integer.MAX_VALUE);
+						calcSAParam(sProb, eProb, sa);
 						sa.setInitialIterations(iter);
-						sa.setInitialTemperature(temp);
 
 						sa.setDesiredFitness(fitnessGoal);
-						sa.setTimeLimit(120 * 1000);
-
-						// my = Math.log((-30/(Math.log(0.001) * temp)) /
-						// 1500); // Note: not in first test
-						sa.setMy(my);
+						sa.setTimeLimit(10 * 1000);
 
 						// Start time
 						long startTime = System.currentTimeMillis();
@@ -268,7 +270,8 @@ public class Main {
 						long endTime = System.currentTimeMillis();
 						long time = endTime - startTime;
 						sa.getResult().time = sa.getResult().getCreatedTime() - startTime;
-
+						double temp = sa.getT0();
+						double my = sa.getMy();
 						outputStream.write("Iter:" + iter + "\t Temp:" + temp + "\t My:" + my + "\t Time:" + time
 								+ "\t ResultTime:" + sa.getResult().time + "\t Fitness:" + sa.getResult().getFitness()
 								+ "\t GlobIt:" + sa.globalIterations + "\n");
@@ -280,7 +283,6 @@ public class Main {
 						outputStream.flush();
 						outputStreamM.flush();
 					}
-					mindex++;
 				}
 				// }
 			}
@@ -294,6 +296,16 @@ public class Main {
 		}
 	}
 
+	
+	private void calcSAParam(double startProb, double endProb, SA sa){
+		double delta = sa.avgDelta; 
+		int iterations = sa.iterationGoal;
+		
+		double T0 = delta/Math.log(startProb);
+		double my = Math.log(delta/(Math.log(endProb)*T0))/iterations;
+		sa.setInitialTemperature(T0);
+		sa.setMy(my);
+	}
 	public void testGAparams() {
 
 		int[] mutationProb = { 40, 50, 60, 70, 80, 90, 100 }; // 7
