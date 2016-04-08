@@ -9,26 +9,37 @@ import SA.SA;
 
 public class Main {
 	static String path = "src/GA/input/";
-	static String file = "kth_L";
+	static String file = "kth_M";
 	static String outputName = "output/";
 
 	static String output;
 
-	public static boolean debug = true;
+	public static boolean debug = false;
 
-	private int fitnessGoal = -4;
-	private int runs = 20;
+	private int runs = 9;
+	private int fitnessGoal = 0;
+	private int timeGoal = 120 * 1000;
+	
+	// TODO list before running tests
+	// Check input file
+	// Check fitness goal
+	// Check time limit goal
+	// Check runs
+	// Check number of days
+	// Test run with small timegoal and check output
+	// Dont run with debug
+	// Check tests in main
 
 	public static void main(String[] args) {
 		Main.path += Main.file;
 		Main main = new Main();
 
-		// main.testGASA();
-		 main.testSA();
-		// main.testGAparams();
-		//main.Runall();
+		main.testGASA();
+		main.testSA();
+		main.testGA();
+		// main.Runall();
 
-		//main.findSAdelta();
+		// main.findSAdelta();
 	}
 
 	public void findSAdelta() {
@@ -93,24 +104,23 @@ public class Main {
 
 			for (int time : testTime) {
 				System.out.print("Time: " + time);
-				for (int i = 0; i < 9; ++i) {
+				for (int i = 0; i < runs; ++i) {
 
 					// Time limit
 					GA ga = new GA();
 					ga.defaultSetup(path);
-					ga.setTimeLimit(10* 1000);
+					ga.setTimeLimit(time);
 
 					SA sa = new SA();
 					sa.defaultSetupGASA(ga.kth, ga.constraints);
-					sa.setSameValueLimit(Integer.MAX_VALUE);
-					sa.setDesiredFitness(-4);
+					sa.setDesiredFitness(fitnessGoal);
+					sa.setTimeLimit(timeGoal);
 
 					// Start time
 					startTime = System.currentTimeMillis();
 
 					TimeTable gatimeTable = ga.generateTimeTable(startTime);
 					sa.setSolution(gatimeTable);
-					sa.setTimeLimit(120 * 1000);
 					sa.run(startTime);
 
 					// End time
@@ -139,17 +149,17 @@ public class Main {
 
 			for (int stuck : testStuck) {
 				System.out.print("Stuck: " + stuck);
-				for (int i = 0; i < 9; ++i) {
+				for (int i = 0; i < runs; ++i) {
 					// Stuck limit
 					GA ga2 = new GA();
 					ga2.defaultSetup(path);
-					ga2.setTimeLimit(120 * 1000);
+					ga2.setTimeLimit(timeGoal);
 					ga2.setSamevalueLimit(stuck);
 
 					SA sa2 = new SA();
 					sa2.defaultSetupGASA(ga2.kth, ga2.constraints);
-					sa2.setSameValueLimit(Integer.MAX_VALUE);
-					sa2.setDesiredFitness(-4);
+					sa2.setDesiredFitness(fitnessGoal);
+					sa2.setTimeLimit(timeGoal);
 
 					// Start time
 					startTime = System.currentTimeMillis();
@@ -184,17 +194,17 @@ public class Main {
 			outputStreamM = new BufferedWriter(new FileWriter("gasaFitTestLargeMatlab.txt"));
 			for (int fit : testFitness) {
 				System.out.print("Fitness: " + fit);
-				for (int i = 0; i < 9; ++i) {
+				for (int i = 0; i < runs; ++i) {
 					// Fitness goal
 					GA ga3 = new GA();
 					ga3.defaultSetup(path);
-					ga3.setTimeLimit(120 * 1000);
+					ga3.setTimeLimit(timeGoal);
 					ga3.setDesiredFitness(fit);
 
 					SA sa3 = new SA();
 					sa3.defaultSetupGASA(ga3.kth, ga3.constraints);
-					sa3.setSameValueLimit(Integer.MAX_VALUE);
-					sa3.setDesiredFitness(-4);
+					sa3.setDesiredFitness(fitnessGoal);
+					sa3.setTimeLimit(timeGoal);
 
 					// Start time
 					startTime = System.currentTimeMillis();
@@ -231,35 +241,29 @@ public class Main {
 	}
 
 	public void testSA() {
-		//double[] testMy = { -2.14E-5, -3.45E-5, -6E-5 };
-		//double[] testTemp = { 10, 13, 21.6 }; // Start at 5% 10% 25%
-		//int[] testIter = { 10 }; // Max global iterations 20000
-		
-		double[] startProb = {0.1, 1, 5, 10};
-		double[] endProb = {0.001, 0.05, 0.1, 1};
-		
+		double[] startProb = {0.001, 0.01, 0.05, 0.1};
+		double[] endProb = {0.01, 0.001, 1E-4};
+
 		int iter = 10;
-		
+
 		BufferedWriter outputStream;
 		BufferedWriter outputStreamM;
 		try {
 			outputStream = new BufferedWriter(new FileWriter("saTestLarge.txt"));
 			outputStreamM = new BufferedWriter(new FileWriter("saTestLargeMatlab.txt"));
 			for (double sProb : startProb) {
-				for (double eProb: endProb) {
-					if(eProb >= sProb){
+				for (double eProb : endProb) {
+					if (eProb >= sProb) {
 						continue;
 					}
-					// for (double my : testMy) {
-					//double my = testMy[mindex];
-					for (int i = 0; i < 9; ++i) {
+					for (int i = 0; i < runs; ++i) {
 						SA sa = new SA();
 						sa.defaultSetup(path);
 						calcSAParam(sProb, eProb, sa);
 						sa.setInitialIterations(iter);
 
 						sa.setDesiredFitness(fitnessGoal);
-						sa.setTimeLimit(10 * 1000);
+						sa.setTimeLimit(timeGoal);
 
 						// Start time
 						long startTime = System.currentTimeMillis();
@@ -270,43 +274,45 @@ public class Main {
 						long endTime = System.currentTimeMillis();
 						long time = endTime - startTime;
 						sa.getResult().time = sa.getResult().getCreatedTime() - startTime;
+						
 						double temp = sa.getT0();
 						double my = sa.getMy();
-						outputStream.write("Iter:" + iter + "\t Temp:" + temp + "\t My:" + my + "\t Time:" + time
+						outputStream.write("Iter:" + iter + "\t startProb:" +sProb + "\t endProb:" + eProb 
+								+ "\t Temp:" + temp + "\t My:" + my + "\t Time:" + time
 								+ "\t ResultTime:" + sa.getResult().time + "\t Fitness:" + sa.getResult().getFitness()
 								+ "\t GlobIt:" + sa.globalIterations + "\n");
-						outputStreamM.write(iter + " " + temp + " " + my + " " + time + " " + sa.getResult().time + " "
+						outputStreamM.write(iter + " " + sProb + " " + eProb + " " 
+								+ temp + " " + my + " " + time + " " + sa.getResult().time + " "
 								+ sa.getResult().getFitness() + " " + sa.globalIterations + "\n");
-						System.out.println("Iter:" + iter + "\t Temp:" + temp + "\t My:" + my + "\t Time:" + time
+						System.out.println("Iter:" + iter + "\t startProb:" +sProb + "\t endProb:" + eProb  
+								+ "\t Temp:" + temp + "\t My:" + my + "\t Time:" + time
 								+ "\t ResultTime:" + sa.getResult().time + "\t Fitness:" + sa.getResult().getFitness()
 								+ "\t GlobIt:" + sa.globalIterations);
 						outputStream.flush();
 						outputStreamM.flush();
 					}
 				}
-				// }
 			}
 
 			outputStream.close();
 			outputStreamM.close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	
-	private void calcSAParam(double startProb, double endProb, SA sa){
-		double delta = sa.avgDelta; 
+	private void calcSAParam(double startProb, double endProb, SA sa) {
+		double delta = sa.avgDelta;
 		int iterations = sa.iterationGoal;
-		
-		double T0 = delta/Math.log(startProb);
-		double my = Math.log(delta/(Math.log(endProb)*T0))/iterations;
+
+		double T0 = delta / Math.log(startProb);
+		double my = Math.log(delta / (Math.log(endProb) * T0)) / iterations;
 		sa.setInitialTemperature(T0);
 		sa.setMy(my);
 	}
-	public void testGAparams() {
+
+	public void testGA() {
 
 		int[] mutationProb = { 40, 50, 60, 70, 80, 90, 100 }; // 7
 		int[] crossoverProb = { 200, 300, 400, 450, 500, 550, 600, 700 }; // 8
@@ -324,15 +330,15 @@ public class Main {
 			for (int pop : popSize) {
 				for (int crossover : crossoverProb) {
 					for (int mutation : mutationProb) {
-						for (int i = 0; i < 9; ++i) {
+						for (int i = 0; i < runs; ++i) {
 							GA ga = new GA();
 							ga.defaultSetup(path);
 
 							ga.setSamevalueLimit(Integer.MAX_VALUE);
 							ga.setMutationProbability(mutation);
 							ga.setPopulationSize(pop);
-							ga.setTimeLimit(120 * 1000);
 
+							ga.setTimeLimit(timeGoal);
 							ga.setDesiredFitness(fitnessGoal);
 
 							// Start time
@@ -370,8 +376,6 @@ public class Main {
 							outputStream.flush();
 							outputStreamM.flush();
 						}
-						// }
-						// }
 					}
 				}
 			}
@@ -379,24 +383,17 @@ public class Main {
 			outputStream.close();
 			outputStreamM.close();
 
-		} catch (
-
-		IOException e)
-
-		{
-			// TODO Auto-generated catch block
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
 
 	public String SA() {
-		// TODO remove
-
 		SA sa = new SA();
 		sa.defaultSetup(path);
 		sa.setDesiredFitness(fitnessGoal);
-		
+		sa.setTimeLimit(timeGoal);
 		// Start time
 		long startTime = System.currentTimeMillis();
 
@@ -418,6 +415,7 @@ public class Main {
 		GA ga = new GA();
 		ga.defaultSetup(path);
 		ga.setDesiredFitness(fitnessGoal);
+		ga.setTimeLimit(timeGoal);
 		// Start time
 		long startTime = System.currentTimeMillis();
 
@@ -439,22 +437,24 @@ public class Main {
 	public String GASA() {
 		GA ga = new GA();
 		ga.defaultSetup(path);
-		// TODO set best stopping condition
-		ga.setDesiredFitness(-500);
-		ga.setSamevalueLimit(Integer.MAX_VALUE);
+
+		// TODO set good stopping condition
+		// TODO Do not remove below if not used
+		ga.setTimeLimit(timeGoal);
+		ga.setDesiredFitness(fitnessGoal);
+		// TODO
 
 		SA sa = new SA();
 		sa.defaultSetupGASA(ga.kth, ga.constraints);
-		sa.setSameValueLimit(Integer.MAX_VALUE);
-		sa.setInitialTemperature(4.3);
 		sa.setDesiredFitness(fitnessGoal);
+		sa.setTimeLimit(timeGoal);
+
 		// Start time
 		long startTime = System.currentTimeMillis();
 
 		TimeTable bestTimeTable = ga.generateTimeTable(startTime);
 
 		sa.setSolution(bestTimeTable);
-		// Metaheuristic.TIME_LIMIT = 90 * 1000;
 		sa.run(startTime);
 
 		// End time

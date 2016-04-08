@@ -22,9 +22,9 @@ public class GA extends Metaheuristic {
 	public int numGenerations = 0;
 
 	// algorithm parameters
-	private int DESIRED_FITNESS;
-	private int SAMEVALUE_LIMIT;
-	private int TIME_LIMIT;
+	private int SAMEVALUE_LIMIT = Integer.MAX_VALUE; 
+	private int DESIRED_FITNESS = Integer.MAX_VALUE; // Always set before running
+	private int TIME_LIMIT = 0; // Always set before running
 
 	private int MAX_POPULATION_SIZE;
 	private int MUTATION_PROBABILITY; // compared with 1000
@@ -42,10 +42,6 @@ public class GA extends Metaheuristic {
 		constraints = new Constraints(kth);
 
 		// setup the genetic algorithm
-		setDesiredFitness(0);
-		setSamevalueLimit(Integer.MAX_VALUE);
-		setTimeLimit(90 * 1000);
-
 		setMutationProbability(60);
 		setPopulationSize(100);
 	}

@@ -19,18 +19,18 @@ public class SA extends Metaheuristic {
 	public double avgDelta = -4.8;
 	public int iterationGoal = 20000;
 	
-	private int TIME_LIMIT;
-	private int SAMEVALUE_LIMIT;
-	private int DESIRED_FITNESS;
+	private int SAMEVALUE_LIMIT = Integer.MAX_VALUE;
+	private int DESIRED_FITNESS = Integer.MAX_VALUE; // Always set before running
+	private int TIME_LIMIT = 0; // Always set before running
 
+	private int INITIAL_ITERATIONS;
 	private double INITIAL_TEMPERATURE;
 	private double CONSTANT_MY;
-	private int INITIAL_ITERATIONS;
 
-	private int iterations;
 	private double temperature;
+	private int iterations;
 	public int globalIterations = 0;
-	int neighbour_i = 0;
+	private int neighbour_i = 0;
 
 	private TimeTable solution = null;
 	private TimeTable bestResult;
@@ -48,26 +48,20 @@ public class SA extends Metaheuristic {
 		this.kth = kth;
 		this.constraints = constraints;
 
-		setInitialTemperature(10);
-		setInitialIterations(10);
-		setMy(-4.29E-6);//setMy(-2.14E-5);//setMy(-6.83E-4);
-		
-		setDesiredFitness(0);
-		setSameValueLimit(Integer.MAX_VALUE);
-		setTimeLimit(90 * 1000);
+		// TODO
+		setInitialTemperature(0);
+		setInitialIterations(0);
+		setMy(0);	
 	}
 
 	public void defaultSetup(String filename) {
 		loadData(filename);
 		constraints = new Constraints(kth);
 		
-		setInitialTemperature(6.5);
-		setInitialIterations(10);
-		setMy(-4.03E-6);//setMy(-2.14E-5);//setMy(-6.83E-4);
-		
-		setDesiredFitness(0);
-		setSameValueLimit(Integer.MAX_VALUE);
-		setTimeLimit(90 * 1000);
+		// TODO
+		setInitialTemperature(0);
+		setInitialIterations(0);
+		setMy(0);	
 	}
 	
 	/**
