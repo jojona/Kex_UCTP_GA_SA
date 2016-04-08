@@ -1,0 +1,5 @@
+Time: 1017 	CreatedTime: 1016 	Fitness: -229189 	Gatime: 1015 	StuckLimit: 10 	Hard broken:67
+Time: 1050 	CreatedTime: 1050 	Fitness: -218223 	Gatime: 967 	StuckLimit: 50 	Hard broken:62
+Time: 1037 	CreatedTime: 1037 	Fitness: -257226 	Gatime: 1036 	StuckLimit: 100 	Hard broken:73
+Time: 1060 	CreatedTime: 1060 	Fitness: -238206 	Gatime: 1059 	StuckLimit: 200 	Hard broken:67
+Time: 1049 	CreatedTime: 1049 	Fitness: -225231 	Gatime: 968 	StuckLimit: 1000 	Hard broken:65

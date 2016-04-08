@@ -8,12 +8,11 @@ import GA.src.GA;
 import SA.SA;
 
 public class Main {
-	static String path = "src/GA/input/";
-	static String file = "kth_M";
+	static String path = "src/input/";
 	static String outputName = "output/";
-
 	static String output;
 
+	static String file = "kth_M";
 	public static boolean debug = false;
 
 	private int runs = 9;
@@ -22,12 +21,13 @@ public class Main {
 
 	// TODO list before running tests
 	// Check input file
+	// Check output file name
 	// Check fitness goal
 	// Check time limit goal
 	// Check runs
 	// Check number of days
-	// Test run with small timegoal and check output
-	// Dont run with debug
+	// Test run with small time limit goal and check output
+	// Don't run with debug
 	// Check tests in main
 
 	public static void main(String[] args) {
@@ -105,7 +105,7 @@ public class Main {
 			long endTime;
 			long runtime;
 
-			outputStream = new BufferedWriter(new FileWriter("gasaTimeTestLarge.txt"));
+			outputStream = new BufferedWriter(new FileWriter("gasaTimeTestLarge.txt")); //TODO filename
 			outputStreamM = new BufferedWriter(new FileWriter("gasaTimeTestLargeMatlab.txt"));
 
 			for (int time : testTime) {
@@ -115,7 +115,8 @@ public class Main {
 					// Time limit
 					GA ga = new GA();
 					ga.defaultSetup(path);
-					ga.setTimeLimit(time);
+					ga.setDesiredFitness(fitnessGoal);
+					ga.setTimeLimit(time * 1000);
 
 					SA sa = new SA();
 					sa.defaultSetupGASA(ga.kth, ga.constraints);
@@ -134,13 +135,13 @@ public class Main {
 					runtime = endTime - startTime;
 					sa.getResult().time = sa.getResult().getCreatedTime() - startTime;
 
-					outputStream.write(
-							"Time: " + runtime + " \tCreatedTime: " + (sa.getResult().getCreatedTime() - startTime)
-									+ " \tFitness " + sa.getResult().getFitness() + " \tGatime: "
-									+ (gatimeTable.getCreatedTime() - startTime) + " \tTimeLimit " + time + "\n");
+					outputStream.write("Time: " + runtime + " \tCreatedTime: "
+							+ (sa.getResult().getCreatedTime() - startTime) + " \tFitness "
+							+ sa.getResult().getFitness() + " \tGatime: " + (gatimeTable.getCreatedTime() - startTime)
+							+ "\tTimeLimit " + time + "\t Hard broken:" + sa.hardConstraints(sa.getResult()) + "\n");
 					outputStreamM.write(runtime + " " + (sa.getResult().getCreatedTime() - startTime) + " "
 							+ sa.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " "
-							+ time + "\n");
+							+ time + " " + sa.hardConstraints(sa.getResult()) + "\n");
 					outputStream.flush();
 					outputStreamM.flush();
 					System.out.print(" " + i);
@@ -160,6 +161,7 @@ public class Main {
 					GA ga2 = new GA();
 					ga2.defaultSetup(path);
 					ga2.setTimeLimit(timeGoal);
+					ga2.setDesiredFitness(fitnessGoal);
 					ga2.setSamevalueLimit(stuck);
 
 					SA sa2 = new SA();
@@ -182,10 +184,11 @@ public class Main {
 					outputStream.write(
 							"Time: " + runtime + " \tCreatedTime: " + (sa2.getResult().getCreatedTime() - startTime)
 									+ " \tFitness: " + sa2.getResult().getFitness() + " \tGatime: "
-									+ (gatimeTable.getCreatedTime() - startTime) + " \tStuckLimit: " + stuck + "\n");
+									+ (gatimeTable.getCreatedTime() - startTime) + " \tStuckLimit: " + stuck
+									+ " \tHard broken:" + sa2.hardConstraints(sa2.getResult()) + "\n");
 					outputStreamM.write(runtime + " " + (sa2.getResult().getCreatedTime() - startTime) + " "
 							+ sa2.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " "
-							+ stuck + "\n");
+							+ stuck + " " + sa2.hardConstraints(sa2.getResult()) + "\n");
 					outputStream.flush();
 					outputStreamM.flush();
 					System.out.print(" " + i);
@@ -228,10 +231,11 @@ public class Main {
 					outputStream.write(
 							"Time: " + runtime + " \tCreatedTime: " + (sa3.getResult().getCreatedTime() - startTime)
 									+ " \tFitness: " + sa3.getResult().getFitness() + " \tGatime: "
-									+ (gatimeTable.getCreatedTime() - startTime) + " \tFitnessLimit: " + fit + "\n");
+									+ (gatimeTable.getCreatedTime() - startTime) + " \tFitnessLimit: " + fit
+									+ "\t Hard broken:" + sa3.hardConstraints(sa3.getResult()) + "\n");
 					outputStreamM.write(runtime + " " + (sa3.getResult().getCreatedTime() - startTime) + " "
 							+ sa3.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " "
-							+ fit + "\n");
+							+ fit + " " + sa3.hardConstraints(sa3.getResult()) + "\n");
 					outputStream.flush();
 					outputStreamM.flush();
 					System.out.print(" " + i);
@@ -250,8 +254,6 @@ public class Main {
 		double[] startProb = { 0.001, 0.01, 0.05, 0.1 };
 		double[] endProb = { 0.01, 0.001, 1E-4 };
 
-		int iter = 10;
-
 		BufferedWriter outputStream;
 		BufferedWriter outputStreamM;
 		try {
@@ -266,7 +268,6 @@ public class Main {
 						SA sa = new SA();
 						sa.defaultSetup(path);
 						calcSAParam(sProb, eProb, sa);
-						sa.setInitialIterations(iter);
 
 						sa.setDesiredFitness(fitnessGoal);
 						sa.setTimeLimit(timeGoal);
@@ -281,18 +282,20 @@ public class Main {
 						long time = endTime - startTime;
 						sa.getResult().time = sa.getResult().getCreatedTime() - startTime;
 
-						double temp = sa.getT0();
+						double temp = sa.getInitialTemp();
 						double my = sa.getMy();
+						int iter = sa.getInitialIterations();
 						outputStream.write("Iter:" + iter + "\t startProb:" + sProb + "\t endProb:" + eProb + "\t Temp:"
 								+ temp + "\t My:" + my + "\t Time:" + time + "\t ResultTime:" + sa.getResult().time
 								+ "\t Fitness:" + sa.getResult().getFitness() + "\t GlobIt:" + sa.globalIterations
-								+ "\n");
+								+ "\t Hard broken:" + sa.hardConstraints(sa.getResult()) + "\n");
 						outputStreamM.write(iter + " " + sProb + " " + eProb + " " + temp + " " + my + " " + time + " "
 								+ sa.getResult().time + " " + sa.getResult().getFitness() + " " + sa.globalIterations
-								+ "\n");
+								+ " " + sa.hardConstraints(sa.getResult()) + "\n");
 						System.out.println("Iter:" + iter + "\t startProb:" + sProb + "\t endProb:" + eProb + "\t Temp:"
 								+ temp + "\t My:" + my + "\t Time:" + time + "\t ResultTime:" + sa.getResult().time
-								+ "\t Fitness:" + sa.getResult().getFitness() + "\t GlobIt:" + sa.globalIterations);
+								+ "\t Fitness:" + sa.getResult().getFitness() + "\t GlobIt:" + sa.globalIterations
+								+ "\t Hard broken:" + sa.hardConstraints(sa.getResult()));
 						outputStream.flush();
 						outputStreamM.flush();
 					}
@@ -319,11 +322,10 @@ public class Main {
 
 	public void testGA() {
 
-		int[] mutationProb = { 40, 50, 60, 70, 80, 90, 100 }; // 7
-		int[] crossoverProb = { 200, 300, 400, 450, 500, 550, 600, 700 }; // 8
-		int[] popSize = { 10, 25, 50, 75, 100, 125, 150 }; // 7
-
-		// 7*8*7 *2min /60min = 13h
+		int[] mutationProb = { 40, 60, 80, 100 }; // 7
+		int[] popSize = { 50, 100, 150, 200 }; // 7
+		double[] selSize = { 0.25, 0.5, 0.75, 1 };
+		// 7*7 *9 *2min /60min = 14.7h
 
 		// int[] sel_Size= {20, 30, 40}; //3
 
@@ -333,8 +335,11 @@ public class Main {
 			outputStream = new BufferedWriter(new FileWriter("gaTestLarge.txt"));
 			outputStreamM = new BufferedWriter(new FileWriter("gaTestLargeMatlab.txt"));
 			for (int pop : popSize) {
-				for (int crossover : crossoverProb) {
-					for (int mutation : mutationProb) {
+				for (int mutation : mutationProb) {
+					for (double sel : selSize) {
+
+						int selectionSize = (int) (pop * sel);
+
 						for (int i = 0; i < runs; ++i) {
 							GA ga = new GA();
 							ga.defaultSetup(path);
@@ -342,6 +347,7 @@ public class Main {
 							ga.setSamevalueLimit(Integer.MAX_VALUE);
 							ga.setMutationProbability(mutation);
 							ga.setPopulationSize(pop);
+							ga.setSelectionSize(selectionSize);
 
 							ga.setTimeLimit(timeGoal);
 							ga.setDesiredFitness(fitnessGoal);
@@ -357,26 +363,19 @@ public class Main {
 
 							bestTimeTable.time = bestTimeTable.getCreatedTime() - startTime;
 
-							outputStream
-									.write(/* "Selection_type:" + selection + */" Pop size:" + pop
-											+ /* "\t Sel size:" + selSize + */
-											"\t Crossover prob:" + crossover + "\t Mutation prob:" + mutation
-											+ "\t Time:" + time + "\t ResultTime:" + bestTimeTable.time + "\t Fitness:"
-											+ bestTimeTable.getFitness() + "\t Generations:" + ga.numGenerations
-											+ "\n");
+							outputStream.write(" Pop size:" + pop + "\t Sel size:" + selectionSize + "\t Mutation prob:"
+									+ mutation + "\t Time:" + time + "\t ResultTime:" + bestTimeTable.time
+									+ "\t Fitness:" + bestTimeTable.getFitness() + "\t Generations:" + ga.numGenerations
+									+ "\t Hard broken:" + ga.hardConstraints(bestTimeTable) + "\n");
 
-							outputStreamM.write(/* selection + " " + */ pop + " "
-									+ /*
-										 * selSize + " " +
-										 */ crossover + " " + mutation + " " + time + " " + bestTimeTable.time + " "
-									+ bestTimeTable.getFitness() + " " + ga.numGenerations + "\n");
+							outputStreamM.write(pop + " " + selectionSize + " " + mutation + " " + time + " "
+									+ bestTimeTable.time + " " + bestTimeTable.getFitness() + " " + ga.numGenerations
+									+ " " + ga.hardConstraints(bestTimeTable) + "\n");
 
-							System.out.println(
-									/* "Selection_type:" + selection + */ " Pop size:" + pop
-											+ /* "\t Sel size:" + selSize + */
-											"\t Crossover prob:" + crossover + "\t Mutation prob:" + mutation
-											+ "\t Time:" + time + "\t ResultTime:" + bestTimeTable.time + "\t Fitness:"
-											+ bestTimeTable.getFitness() + "\t Generations:" + ga.numGenerations);
+							System.out.println(" Pop size:" + pop + "\t Sel size:" + selectionSize + "\t Mutation prob:"
+									+ mutation + "\t Time:" + time + "\t ResultTime:" + bestTimeTable.time
+									+ "\t Fitness:" + bestTimeTable.getFitness() + "\t Generations:" + ga.numGenerations
+									+ "\t Hard broken:" + ga.hardConstraints(bestTimeTable));
 
 							outputStream.flush();
 							outputStreamM.flush();

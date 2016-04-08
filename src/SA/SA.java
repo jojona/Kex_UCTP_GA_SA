@@ -20,9 +20,10 @@ public class SA extends Metaheuristic {
 	public int iterationGoal = 20000;
 
 	private int SAMEVALUE_LIMIT = Integer.MAX_VALUE;
-	private int DESIRED_FITNESS = Integer.MAX_VALUE; // Always set before
-														// running
-	private int TIME_LIMIT = 0; // Always set before running
+	
+	// Always set desired fitness and time limit before running
+	private int DESIRED_FITNESS = Integer.MAX_VALUE; 
+	private int TIME_LIMIT = 0;
 
 	private int INITIAL_ITERATIONS;
 	private double INITIAL_TEMPERATURE;
@@ -49,9 +50,10 @@ public class SA extends Metaheuristic {
 		this.kth = kth;
 		this.constraints = constraints;
 
+		setInitialIterations(10);
+
 		// TODO
 		setInitialTemperature(0);
-		setInitialIterations(0);
 		setMy(0);
 	}
 
@@ -59,9 +61,10 @@ public class SA extends Metaheuristic {
 		loadData(filename);
 		constraints = new Constraints(kth);
 
+		setInitialIterations(10);
+
 		// TODO
 		setInitialTemperature(0);
-		setInitialIterations(0);
 		setMy(0);
 	}
 
@@ -344,12 +347,16 @@ public class SA extends Metaheuristic {
 		return sb.toString();
 	}
 
-	public double getT0() {
+	public double getInitialTemp() {
 		return INITIAL_TEMPERATURE;
 	}
 
 	public double getMy() {
 		return CONSTANT_MY;
+	}
+	
+	public int getInitialIterations() {
+		return INITIAL_ITERATIONS;
 	}
 
 	/**

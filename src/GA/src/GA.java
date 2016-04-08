@@ -23,13 +23,15 @@ public class GA extends Metaheuristic {
 
 	// algorithm parameters
 	private int SAMEVALUE_LIMIT = Integer.MAX_VALUE;
-	private int DESIRED_FITNESS = Integer.MAX_VALUE; // Always set before
-														// running
-	private int TIME_LIMIT = 0; // Always set before running
+	
+	// Always set desired fitness and time limit before running
+	private int DESIRED_FITNESS = Integer.MAX_VALUE; 
+	private int TIME_LIMIT = 0;
 
 	private int MAX_POPULATION_SIZE;
 	private int MUTATION_PROBABILITY; // compared with 1000
-
+	private int SELECTION_SIZE;
+	
 	private Population population;
 	Random rand;
 
@@ -46,6 +48,7 @@ public class GA extends Metaheuristic {
 		// TODO
 		setMutationProbability(0); // 60
 		setPopulationSize(0); // 100
+		setSelectionSize(0); // XX TODO
 	}
 
 	/*
@@ -68,7 +71,7 @@ public class GA extends Metaheuristic {
 
 		numGenerations = 1;
 		while (!stop) {
-			Population children = breed(population, MAX_POPULATION_SIZE);
+			Population children = breed(population, SELECTION_SIZE);
 			population = selection(population, children);
 
 			// sort the population by their fitness (not needed?)
@@ -389,6 +392,10 @@ public class GA extends Metaheuristic {
 		MAX_POPULATION_SIZE = size;
 	}
 
+	public void setSelectionSize(int size) {
+		SELECTION_SIZE = size;
+	}
+	
 	@Override
 	public String getConf() {
 		StringBuilder sb = new StringBuilder();

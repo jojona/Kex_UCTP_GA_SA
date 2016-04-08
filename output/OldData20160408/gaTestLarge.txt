@@ -1,0 +1,1 @@
+ Pop size:10	 Crossover prob:200	 Mutation prob:40	 Time:120003	 ResultTime:35440	 Fitness:-2449	 Generations:56000

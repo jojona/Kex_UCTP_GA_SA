@@ -1,0 +1,6 @@
+Time: 1001 	CreatedTime: 998 	Fitness -8102 	Gatime: 439	TimeLimit 10	 Hard broken:3
+Time: 1001 	CreatedTime: 860 	Fitness -65 	Gatime: 170	TimeLimit 20	 Hard broken:0
+Time: 1001 	CreatedTime: 950 	Fitness -69 	Gatime: 133	TimeLimit 30	 Hard broken:0
+Time: 1002 	CreatedTime: 929 	Fitness -6073 	Gatime: 359	TimeLimit 40	 Hard broken:2
+Time: 1001 	CreatedTime: 875 	Fitness -63 	Gatime: 95	TimeLimit 50	 Hard broken:0
+Time: 1001 	CreatedTime: 988 	Fitness -4075 	Gatime: 508	TimeLimit 60	 Hard broken:1
