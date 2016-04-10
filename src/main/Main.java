@@ -12,11 +12,11 @@ public class Main {
 	static String outputName = "output/";
 	static String output;
 
-	static String file = "kth_M";
+	static String file = "kth_L";
 	public static boolean debug = false;
 
 	private int runs = 9;
-	private int fitnessGoal = 0;
+	private int fitnessGoal = -50;
 	private int timeGoal = 120 * 1000;
 
 	// TODO list before running tests
@@ -34,10 +34,11 @@ public class Main {
 		Main.path += Main.file;
 		Main main = new Main();
 
+		long startTime = System.currentTimeMillis();
 		// main.findSAdelta();
 
 		// Need to run delta test before and fix delta value DONE
-		main.testSA();
+		// main.testSA();
 		main.testGA();
 
 		// Need to run above tests before and fix parameters
@@ -45,7 +46,8 @@ public class Main {
 
 		// Need to run above tests before and fix parameters
 		// main.Runall();
-
+		long endTime = System.currentTimeMillis();
+		System.out.println(Math.floor((endTime - startTime) / 1000));
 	}
 
 	public void findSAdelta() {
@@ -105,7 +107,8 @@ public class Main {
 			long endTime;
 			long runtime;
 
-			outputStream = new BufferedWriter(new FileWriter("gasaTimeTestLarge.txt")); //TODO filename
+			outputStream = new BufferedWriter(new FileWriter("gasaTimeTestLarge.txt")); // TODO
+																						// filename
 			outputStreamM = new BufferedWriter(new FileWriter("gasaTimeTestLargeMatlab.txt"));
 
 			for (int time : testTime) {
@@ -257,8 +260,8 @@ public class Main {
 		BufferedWriter outputStream;
 		BufferedWriter outputStreamM;
 		try {
-			outputStream = new BufferedWriter(new FileWriter("saTestLarge.txt"));
-			outputStreamM = new BufferedWriter(new FileWriter("saTestLargeMatlab.txt"));
+			outputStream = new BufferedWriter(new FileWriter("saTestLarge120s50fit.txt"));
+			outputStreamM = new BufferedWriter(new FileWriter("saTestLargeMatlab120s50fit.txt"));
 			for (double sProb : startProb) {
 				for (double eProb : endProb) {
 					if (eProb >= sProb) {
@@ -322,18 +325,18 @@ public class Main {
 
 	public void testGA() {
 
-		int[] mutationProb = { 40, 60, 80, 100 }; // 7
-		int[] popSize = { 50, 100, 150, 200 }; // 7
-		double[] selSize = { 0.25, 0.5, 0.75, 1 };
-		// 7*7 *9 *2min /60min = 14.7h
+		int[] mutationProb = { 40, 60, 80, 100 }; // 4
+		int[] popSize = { 50, 100, 150, 200 }; // 4
+		double[] selSize = { 0.25, 0.5, 0.75, 1 }; // 4
+		// 4*4*4 *9 *2min /60min = 19.2h
 
 		// int[] sel_Size= {20, 30, 40}; //3
 
 		BufferedWriter outputStream;
 		BufferedWriter outputStreamM;
 		try {
-			outputStream = new BufferedWriter(new FileWriter("gaTestLarge.txt"));
-			outputStreamM = new BufferedWriter(new FileWriter("gaTestLargeMatlab.txt"));
+			outputStream = new BufferedWriter(new FileWriter("gaTestLarge120s50fit.txt"));
+			outputStreamM = new BufferedWriter(new FileWriter("gaTestLargeMatlab120s50fit.txt"));
 			for (int pop : popSize) {
 				for (int mutation : mutationProb) {
 					for (double sel : selSize) {
@@ -363,19 +366,21 @@ public class Main {
 
 							bestTimeTable.time = bestTimeTable.getCreatedTime() - startTime;
 
-							outputStream.write(" Pop size:" + pop + "\t Sel size:" + selectionSize + "\t Mutation prob:"
-									+ mutation + "\t Time:" + time + "\t ResultTime:" + bestTimeTable.time
-									+ "\t Fitness:" + bestTimeTable.getFitness() + "\t Generations:" + ga.numGenerations
-									+ "\t Hard broken:" + ga.hardConstraints(bestTimeTable) + "\n");
+							outputStream.write(" Pop size:" + pop + "\t Sel size:" + selectionSize + "\t Sel quota:"
+									+ sel + "\t Mutation prob:" + mutation + "\t Time:" + time + "\t ResultTime:"
+									+ bestTimeTable.time + "\t Fitness:" + bestTimeTable.getFitness()
+									+ "\t Generations:" + ga.numGenerations + "\t Hard broken:"
+									+ ga.hardConstraints(bestTimeTable) + "\n");
 
-							outputStreamM.write(pop + " " + selectionSize + " " + mutation + " " + time + " "
-									+ bestTimeTable.time + " " + bestTimeTable.getFitness() + " " + ga.numGenerations
-									+ " " + ga.hardConstraints(bestTimeTable) + "\n");
+							outputStreamM.write(pop + " " + selectionSize + " " + sel + " " + mutation + " " + time
+									+ " " + bestTimeTable.time + " " + bestTimeTable.getFitness() + " "
+									+ ga.numGenerations + " " + ga.hardConstraints(bestTimeTable) + "\n");
 
-							System.out.println(" Pop size:" + pop + "\t Sel size:" + selectionSize + "\t Mutation prob:"
-									+ mutation + "\t Time:" + time + "\t ResultTime:" + bestTimeTable.time
-									+ "\t Fitness:" + bestTimeTable.getFitness() + "\t Generations:" + ga.numGenerations
-									+ "\t Hard broken:" + ga.hardConstraints(bestTimeTable));
+							System.out.println(" Pop size:" + pop + "\t Sel size:" + selectionSize + "\t Sel quota:"
+									+ sel + "\t Mutation prob:" + mutation + "\t Time:" + time + "\t ResultTime:"
+									+ bestTimeTable.time + "\t Fitness:" + bestTimeTable.getFitness()
+									+ "\t Generations:" + ga.numGenerations + "\t Hard broken:"
+									+ ga.hardConstraints(bestTimeTable));
 
 							outputStream.flush();
 							outputStreamM.flush();

@@ -1,0 +1,9 @@
+Iter:10	 startProb:0.001	 endProb:1.0E-4	 Temp:0.6948711710452029	 My:-1.4384103622589045E-5	 Time:2002	 ResultTime:1798	 Fitness:-41	 GlobIt:2010	 Hard broken:0
+Iter:10	 startProb:0.01	 endProb:0.001	 Temp:1.0423067565678044	 My:-2.0273255405408215E-5	 Time:2001	 ResultTime:733	 Fitness:-54	 GlobIt:1943	 Hard broken:0
+Iter:10	 startProb:0.01	 endProb:1.0E-4	 Temp:1.0423067565678044	 My:-3.4657359027997264E-5	 Time:2001	 ResultTime:1043	 Fitness:-62	 GlobIt:1925	 Hard broken:0
+Iter:10	 startProb:0.05	 endProb:0.01	 Temp:1.6022793633376036	 My:-2.149954627214762E-5	 Time:2002	 ResultTime:811	 Fitness:-68	 GlobIt:1877	 Hard broken:0
+Iter:10	 startProb:0.05	 endProb:0.001	 Temp:1.6022793633376036	 My:-4.177280167755584E-5	 Time:2001	 ResultTime:824	 Fitness:-55	 GlobIt:1896	 Hard broken:0
+Iter:10	 startProb:0.05	 endProb:1.0E-4	 Temp:1.6022793633376036	 My:-5.615690530014489E-5	 Time:2002	 ResultTime:1576	 Fitness:-55	 GlobIt:1910	 Hard broken:0
+Iter:10	 startProb:0.1	 endProb:0.01	 Temp:2.0846135131356087	 My:-3.4657359027997264E-5	 Time:2001	 ResultTime:905	 Fitness:-68	 GlobIt:1876	 Hard broken:0
+Iter:10	 startProb:0.1	 endProb:0.001	 Temp:2.0846135131356087	 My:-5.493061443340548E-5	 Time:2001	 ResultTime:1180	 Fitness:-70	 GlobIt:1811	 Hard broken:0
+Iter:10	 startProb:0.1	 endProb:1.0E-4	 Temp:2.0846135131356087	 My:-6.931471805599453E-5	 Time:2001	 ResultTime:1963	 Fitness:-68	 GlobIt:1942	 Hard broken:0
