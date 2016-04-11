@@ -44,8 +44,8 @@ public class Constraints {
 	}
 
 	public int softConstraints(TimeTable tt) {
-		return 4 * minimumWorkingDays(tt) + 2 * sameRoom(tt) + lastTimeslot(tt) + 4 * roomCapacityBreaches(tt)
-				+ 2 * studentOneEventDay(tt);
+		return 4 * minimumWorkingDays(tt) + 2 * sameRoom(tt) + lastTimeslot(tt) + 2 * studentOneEventDay(tt)
+				+ 4 * roomCapacityBreaches(tt);
 	}
 
 	//////////////////////////
