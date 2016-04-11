@@ -17,7 +17,7 @@ public class Main {
 
 	private int runs = 9;
 	private int fitnessGoal = -50;
-	private int timeGoal = 120 * 1000;
+	private int timeGoal = 200 * 1000;
 
 	// TODO list before running tests
 	// Check input file
@@ -39,15 +39,15 @@ public class Main {
 
 		// Need to run delta test before and fix delta value DONE
 		// main.testSA();
-		main.testGA();
+		//main.testGA();
 
-		// Need to run above tests before and fix parameters
-		// main.testGASA();
+		// Need to run above tests before and fix parameters DONE
+		main.testGASA();
 
 		// Need to run above tests before and fix parameters
 		// main.Runall();
 		long endTime = System.currentTimeMillis();
-		System.out.println(Math.floor((endTime - startTime) / 1000));
+		System.out.println("Total runtime: " + Math.floor((endTime - startTime) / 1000) + " seconds");
 	}
 
 	public void findSAdelta() {
@@ -69,7 +69,7 @@ public class Main {
 		try {
 			outputStreamSA = new BufferedWriter(new FileWriter("saMainRun.txt"));
 			outputStreamGA = new BufferedWriter(new FileWriter("gaMainRun.txt"));
-			outputSteamGASA = new BufferedWriter(new FileWriter("gasaMainRun.txt"));
+			//outputSteamGASA = new BufferedWriter(new FileWriter("gasaMainRun.txt"));
 
 			for (int i = 0; i < runs; i++) {
 				Main.output = Main.outputName + Main.file + "_" + i;
@@ -81,23 +81,23 @@ public class Main {
 				outputStreamSA.write(SA() + "\n");
 				outputStreamSA.flush();
 
-				outputSteamGASA.write(GASA() + "\n");
-				outputSteamGASA.flush();
+				//outputSteamGASA.write(GASA() + "\n");
+				//outputSteamGASA.flush();
 
 			}
 			outputStreamSA.close();
 			outputStreamGA.close();
-			outputSteamGASA.close();
+			//outputSteamGASA.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void testGASA() {
-
-		int[] testFitness = { -10, -25, -50, -100, -500 };
+		
+		int[] testFitness = { -500, -1000, -10000, -50000, -100000, -300000 };
 		int[] testStuck = { 10, 50, 100, 200, 1000 };
-		int[] testTime = { 10, 20, 30, 40, 50, 60 };
+		int[] testTime = { 10, 20, 50, 80, 100, 150, 190}; // timegoal= 200
 
 		BufferedWriter outputStream;
 		BufferedWriter outputStreamM;
