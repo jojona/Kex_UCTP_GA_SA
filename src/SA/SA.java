@@ -53,8 +53,8 @@ public class SA extends Metaheuristic {
 		setInitialIterations(10);
 
 		// TODO
-		setInitialTemperature(0);
-		setMy(0);
+		setInitialTemperature(0.69487);
+		setMy(-1.4384E-5);
 	}
 
 	public void defaultSetup(String filename) {
@@ -64,8 +64,8 @@ public class SA extends Metaheuristic {
 		setInitialIterations(10);
 
 		// TODO
-		setInitialTemperature(0);
-		setMy(0);
+		setInitialTemperature(0.69487);
+		setMy(-1.4384E-5);
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class SA extends Metaheuristic {
 				stop = true;
 			}
 
-			if (Main.debug)
+			if (Main.debug && globalIterations%5==0)
 				System.out.println(
 						"#GlobalIteration: " + globalIterations + " CURRENT FITNESS: " + bestResult.getFitness());
 

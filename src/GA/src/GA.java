@@ -46,9 +46,9 @@ public class GA extends Metaheuristic {
 
 		// setup the genetic algorithm
 		// TODO
-		setMutationProbability(0); // 60
-		setPopulationSize(0); // 100
-		setSelectionSize(0); // XX TODO
+		setMutationProbability(40); // 60
+		setPopulationSize(100); // 100
+		setSelectionSize(50); // XX TODO
 	}
 
 	/*
@@ -96,7 +96,7 @@ public class GA extends Metaheuristic {
 				}
 			}
 
-			if (Main.debug)
+			if (Main.debug && numGenerations%5==0)
 				System.out.println("#GENERATIONS: " + numGenerations + " BEST FITNESS: "
 						+ population.getTopIndividual().getFitness());
 		}
