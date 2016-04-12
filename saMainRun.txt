@@ -1,0 +1,3 @@
+Time:2001	 ResultTime:1999	 Breaktime:2000	 Fitness:-114	 GlobIt:909	 Hard broken:0
+Time:2002	 ResultTime:1982	 Breaktime:2000	 Fitness:-4125	 GlobIt:914	 Hard broken:1
+Time:10002	 ResultTime:8281	 Breaktime:10000	 Fitness:-69	 GlobIt:4605	 Hard broken:0

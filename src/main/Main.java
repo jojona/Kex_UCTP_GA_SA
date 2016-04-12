@@ -45,7 +45,7 @@ public class Main {
 		main.testGASA();
 
 		// Need to run above tests before and fix parameters
-		// main.Runall();
+		main.Runall();
 		long endTime = System.currentTimeMillis();
 		System.out.println("Total runtime: " + Math.floor((endTime - startTime) / 1000) + " seconds");
 	}
@@ -65,26 +65,44 @@ public class Main {
 		BufferedWriter outputStreamSA;
 		BufferedWriter outputStreamGA;
 		BufferedWriter outputSteamGASA;
-
+		BufferedWriter outputStreamSAMatlab;
+		BufferedWriter outputStreamGAMatlab;
+		OutputStrings result;
+		int[] timeTests = {2*1000, 10*1000, 60*1000, 150*1000};
+		int runAllRuns = 50;
 		try {
 			outputStreamSA = new BufferedWriter(new FileWriter("saMainRun.txt"));
+			outputStreamSAMatlab = new BufferedWriter(new FileWriter("saMainRunMatlab.txt"));
 			outputStreamGA = new BufferedWriter(new FileWriter("gaMainRun.txt"));
+			outputStreamGAMatlab = new BufferedWriter(new FileWriter("gaMainRunMatlab.txt"));
 			//outputSteamGASA = new BufferedWriter(new FileWriter("gasaMainRun.txt"));
-
-			for (int i = 0; i < runs; i++) {
-				Main.output = Main.outputName + Main.file + "_" + i;
-				System.out.println("Lap: " + i);
-
-				outputStreamGA.write(GA() + "\n");
-				outputStreamGA.flush();
-
-				outputStreamSA.write(SA() + "\n");
-				outputStreamSA.flush();
-
-				//outputSteamGASA.write(GASA() + "\n");
-				//outputSteamGASA.flush();
-
+			
+			for (int time : timeTests){
+				System.out.print("Time:" + time + " Lap:");
+				for (int i = 0; i < runAllRuns; i++) {
+					Main.output = Main.outputName + Main.file + "_" + i;
+					System.out.print(" " + i);
+					result = GA(time);
+					
+					outputStreamGA.write(result.regOutput);
+					outputStreamGA.flush();
+					outputStreamGAMatlab.write(result.matlabOutput);
+					outputStreamGAMatlab.flush();
+					
+					result = SA(time);
+					outputStreamSA.write(result.regOutput);
+					outputStreamSA.flush();
+					outputStreamSAMatlab.write(result.matlabOutput);
+					outputStreamSAMatlab.flush();
+	
+					//outputSteamGASA.write(GASA() + "\n");
+					//outputSteamGASA.flush();
+	
+				}
+				System.out.println();
 			}
+			outputStreamGAMatlab.close();
+			outputStreamSAMatlab.close();
 			outputStreamSA.close();
 			outputStreamGA.close();
 			//outputSteamGASA.close();
@@ -124,7 +142,7 @@ public class Main {
 					SA sa = new SA();
 					sa.defaultSetupGASA(ga.kth, ga.constraints);
 					sa.setDesiredFitness(fitnessGoal);
-					sa.setTimeLimit(timeGoal);
+					sa.setTimeLimit(timeGoal-time*1000);
 
 					// Start time
 					startTime = System.currentTimeMillis();
@@ -398,11 +416,11 @@ public class Main {
 
 	}
 
-	public String SA() {
+	public OutputStrings SA(int thisTimeGoal) {
 		SA sa = new SA();
 		sa.defaultSetup(path);
 		sa.setDesiredFitness(fitnessGoal);
-		sa.setTimeLimit(timeGoal);
+		sa.setTimeLimit(thisTimeGoal);
 		// Start time
 		long startTime = System.currentTimeMillis();
 
@@ -413,18 +431,27 @@ public class Main {
 		long time = endTime - startTime;
 
 		sa.getResult().time = sa.getResult().getCreatedTime() - startTime;
-		System.out.println("SA done");
+		if(Main.debug){
+			System.out.println("SA done");			
+		}
 		printTimeTable(sa.getResult(), time, "SA", "Globalit: " + sa.globalIterations, sa.kth, sa.getConf(),
 				sa.hardConstraints(sa.getResult()));
 
-		return "" + time;
+		String reg = "Time:" + time + "\t ResultTime:" + sa.getResult().time + "\t Breaktime:" + thisTimeGoal
+				+ "\t Fitness:" + sa.getResult().getFitness() + "\t GlobIt:" + sa.globalIterations
+				+ "\t Hard broken:" + sa.hardConstraints(sa.getResult()) + "\n";;
+		
+		String matlab = time + " " + sa.getResult().time + " " + thisTimeGoal + " " + sa.getResult().getFitness() + " " + sa.globalIterations
+				+ " " + sa.hardConstraints(sa.getResult()) + "\n";;
+		
+		return new OutputStrings(reg, matlab);
 	}
 
-	public String GA() {
+	public OutputStrings GA(int thisTimeGoal) {
 		GA ga = new GA();
 		ga.defaultSetup(path);
 		ga.setDesiredFitness(fitnessGoal);
-		ga.setTimeLimit(timeGoal);
+		ga.setTimeLimit(thisTimeGoal);
 		// Start time
 		long startTime = System.currentTimeMillis();
 
@@ -436,11 +463,23 @@ public class Main {
 
 		bestTimeTable.time = bestTimeTable.getCreatedTime() - startTime;
 
-		System.out.println("GA done");
+		if(Main.debug){
+			System.out.println("GA done");			
+		}
+		
 		printTimeTable(bestTimeTable, time, "GA", "Generations: " + ga.numGenerations, ga.kth, ga.getConf(),
 				ga.hardConstraints(bestTimeTable));
 
-		return "" + time;
+		//return "" + time;
+		String reg =  "Time:" + time + "\t ResultTime:" + bestTimeTable.time + "\t Breaktime:" + thisTimeGoal 
+				+ "\t Fitness:" + bestTimeTable.getFitness()
+		+ "\t Generations:" + ga.numGenerations + "\t Hard broken:"
+		+ ga.hardConstraints(bestTimeTable) + "\n";
+		
+		String matlab = time + " " + bestTimeTable.time + " " + thisTimeGoal + " " + bestTimeTable.getFitness() + " "
+				+ ga.numGenerations + " " + ga.hardConstraints(bestTimeTable) + "\n";
+		
+		return new OutputStrings(reg, matlab);
 	}
 
 	public String GASA() {
@@ -534,6 +573,15 @@ public class Main {
 
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private class OutputStrings {
+		public String regOutput;
+		public String matlabOutput;
+		public OutputStrings(String reg, String matlab){
+			regOutput = reg;
+			matlabOutput = matlab;
 		}
 	}
 

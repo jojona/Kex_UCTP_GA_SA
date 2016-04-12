@@ -1,0 +1,3 @@
+Time:2038	 ResultTime:2038	 Breaktime:2000	 Fitness:-261293	 Generations:34	 Hard broken:78
+Time:2037	 ResultTime:2037	 Breaktime:2000	 Fitness:-228340	 Generations:36	 Hard broken:68
+Time:10016	 ResultTime:9913	 Breaktime:10000	 Fitness:-52256	 Generations:361	 Hard broken:17
