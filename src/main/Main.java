@@ -43,9 +43,13 @@ public class Main {
 
 		// Need to run above tests before and fix parameters DONE
 		main.testGASA();
-
+		main.fitnessGoal = 0;
 		// Need to run above tests before and fix parameters
 		main.Runall();
+		main.file = "kth_M";
+		Main.path = "src/input/" + Main.file;
+		main.Runall();
+		
 		long endTime = System.currentTimeMillis();
 		System.out.println("Total runtime: " + Math.floor((endTime - startTime) / 1000) + " seconds");
 	}
@@ -61,7 +65,6 @@ public class Main {
 	}
 
 	public void Runall() {
-
 		BufferedWriter outputStreamSA;
 		BufferedWriter outputStreamGA;
 		BufferedWriter outputSteamGASA;
@@ -71,10 +74,10 @@ public class Main {
 		int[] timeTests = {2*1000, 10*1000, 60*1000, 150*1000};
 		int runAllRuns = 50;
 		try {
-			outputStreamSA = new BufferedWriter(new FileWriter("saMainRun.txt"));
-			outputStreamSAMatlab = new BufferedWriter(new FileWriter("saMainRunMatlab.txt"));
-			outputStreamGA = new BufferedWriter(new FileWriter("gaMainRun.txt"));
-			outputStreamGAMatlab = new BufferedWriter(new FileWriter("gaMainRunMatlab.txt"));
+			outputStreamSA = new BufferedWriter(new FileWriter("saMainRun" + Main.file + ".txt"));
+			outputStreamSAMatlab = new BufferedWriter(new FileWriter("saMainRun" + Main.file + "Matlab.txt"));
+			outputStreamGA = new BufferedWriter(new FileWriter("gaMainRun" + Main.file + ".txt"));
+			outputStreamGAMatlab = new BufferedWriter(new FileWriter("gaMainRun" + Main.file + "Matlab.txt"));
 			//outputSteamGASA = new BufferedWriter(new FileWriter("gasaMainRun.txt"));
 			
 			for (int time : timeTests){
@@ -115,7 +118,9 @@ public class Main {
 		
 		int[] testFitness = { -500, -1000, -10000, -50000, -100000, -300000 };
 		int[] testStuck = { 10, 50, 100, 200, 1000 };
-		int[] testTime = { 10, 20, 50, 80, 100, 150, 190}; // timegoal= 200
+		int[] testTime1 = { 10*1000, 20*1000, 50*1000, 80*1000, 100*1000, 150*1000, 190*1000}; // timegoal= 200
+		int[] testTime2 = {1*100, 5*100, 1*1000, 2*1000, 5*1000, 10*1000, 20*1000}; // timegoal= 200
+		
 
 		BufferedWriter outputStream;
 		BufferedWriter outputStreamM;
@@ -125,11 +130,11 @@ public class Main {
 			long endTime;
 			long runtime;
 
-			outputStream = new BufferedWriter(new FileWriter("gasaTimeTestLarge.txt")); // TODO
+			outputStream = new BufferedWriter(new FileWriter("gasaTime1TestLarge.txt")); // TODO
 																						// filename
-			outputStreamM = new BufferedWriter(new FileWriter("gasaTimeTestLargeMatlab.txt"));
+			outputStreamM = new BufferedWriter(new FileWriter("gasaTime1TestLargeMatlab.txt"));
 
-			for (int time : testTime) {
+			for (int time : testTime1) {
 				System.out.print("Time: " + time);
 				for (int i = 0; i < runs; ++i) {
 
@@ -137,12 +142,66 @@ public class Main {
 					GA ga = new GA();
 					ga.defaultSetup(path);
 					ga.setDesiredFitness(fitnessGoal);
-					ga.setTimeLimit(time * 1000);
+					ga.setTimeLimit(time);
 
 					SA sa = new SA();
 					sa.defaultSetupGASA(ga.kth, ga.constraints);
 					sa.setDesiredFitness(fitnessGoal);
-					sa.setTimeLimit(timeGoal-time*1000);
+					sa.setTimeLimit(timeGoal); //TODO Correct?
+
+					// Start time
+					startTime = System.currentTimeMillis();
+
+					TimeTable gatimeTable = ga.generateTimeTable(startTime);
+					sa.setSolution(gatimeTable);
+					sa.run(startTime);
+
+					// End time
+					endTime = System.currentTimeMillis();
+					runtime = endTime - startTime;
+					sa.getResult().time = sa.getResult().getCreatedTime() - startTime;
+
+					outputStream.write("Time: " + runtime + " \tCreatedTime: "
+							+ (sa.getResult().getCreatedTime() - startTime) + " \tFitness "
+							+ sa.getResult().getFitness() + " \tGatime: " + (gatimeTable.getCreatedTime() - startTime)
+							+ "\tTimeLimit " + time + "\t Hard broken:" + sa.hardConstraints(sa.getResult()) + "\n");
+					outputStreamM.write(runtime + " " + (sa.getResult().getCreatedTime() - startTime) + " "
+							+ sa.getResult().getFitness() + " " + (gatimeTable.getCreatedTime() - startTime) + " "
+							+ time + " " + sa.hardConstraints(sa.getResult()) + "\n");
+					outputStream.flush();
+					outputStreamM.flush();
+					System.out.print(" " + i);
+				}
+				System.out.println();
+			}
+			outputStream.close();
+			outputStreamM.close();
+			
+			
+		
+
+//				long startTime;
+//				long endTime;
+//				long runtime;
+
+			outputStream = new BufferedWriter(new FileWriter("gasaTime2TestLarge.txt")); // TODO
+																						// filename
+			outputStreamM = new BufferedWriter(new FileWriter("gasaTime2TestLargeMatlab.txt"));
+
+			for (int time : testTime2) {
+				System.out.print("Time: " + time);
+				for (int i = 0; i < runs; ++i) {
+
+					// Time limit
+					GA ga = new GA();
+					ga.defaultSetup(path);
+					ga.setDesiredFitness(fitnessGoal);
+					ga.setTimeLimit(time);
+
+					SA sa = new SA();
+					sa.defaultSetupGASA(ga.kth, ga.constraints);
+					sa.setDesiredFitness(fitnessGoal);
+					sa.setTimeLimit(timeGoal); //TODO Correct?
 
 					// Start time
 					startTime = System.currentTimeMillis();
